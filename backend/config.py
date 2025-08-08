@@ -1,0 +1,41 @@
+import torch
+from pathlib import Path
+
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+LABEL_MAPPING = {'0': 'deceptive', '1': 'truthful'}
+CLASS_NAMES = ['deceptive', 'truthful']
+
+MODELS_DIR = Path(__file__).parent / 'models'
+
+def get_available_models():
+    """Dynamically discover available models from the models directory and models.txt"""
+    available_models = {}
+    
+    # First, try to read from models.txt to get the mapping
+    models_file = Path(__file__).parent.parent / 'models.txt'
+    if models_file.exists():
+        with open(models_file, 'r') as f:
+            model_lines = [line.strip() for line in f.readlines() if line.strip()]
+        
+        for model_name in model_lines:
+            # Extract local name from model path
+            local_name = model_name.replace('neurips-user/', '').replace('neurips-', '')
+            model_path = MODELS_DIR / local_name
+            available_models[local_name] = model_path
+    
+    # Also scan the models directory for any existing models
+    if MODELS_DIR.exists():
+        for model_dir in MODELS_DIR.iterdir():
+            if model_dir.is_dir() and any(model_dir.iterdir()):
+                local_name = model_dir.name
+                if local_name not in available_models:
+                    available_models[local_name] = model_dir
+    
+    return available_models
+
+AVAILABLE_MODELS = get_available_models()
+
+API_HOST = '0.0.0.0'
+API_PORT = 5000
+DEBUG_MODE = True
