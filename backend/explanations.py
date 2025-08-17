@@ -1,7 +1,3 @@
-"""
-Explainable AI utilities for the Deception Detector application.
-"""
-
 import numpy as np
 import torch
 from transformers import pipeline
