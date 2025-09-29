@@ -108,6 +108,7 @@
                     data-bs-target="#lime-tab"
                     type="button"
                     role="tab"
+                    @click="onTabChange('lime')"
                   >
                     <i class="fas fa-lightbulb me-2"></i>
                     LIME Explanation
@@ -120,6 +121,7 @@
                     data-bs-target="#shap-tab"
                     type="button"
                     role="tab"
+                    @click="onTabChange('shap')"
                   >
                     <i class="fas fa-chart-bar me-2"></i>
                     SHAP Explanation
@@ -131,14 +133,20 @@
                 <!-- LIME Tab -->
                 <div class="tab-pane fade show active" id="lime-tab" role="tabpanel">
                   <LimeExplanation 
-                    :lime-explanation="results.explanations.lime"
+                    :lime-explanation="limeExplanation"
+                    :loading="limeLoading"
+                    :error="limeError"
+                    @load-explanation="loadLimeExplanation"
                   />
                 </div>
 
                 <!-- SHAP Tab -->
                 <div class="tab-pane fade" id="shap-tab" role="tabpanel">
                   <ShapExplanation 
-                    :shap-explanation="results.explanations.shap"
+                    :shap-explanation="shapExplanation"
+                    :loading="shapLoading"
+                    :error="shapError"
+                    @load-explanation="loadShapExplanation"
                   />
                 </div>
               </div>
@@ -166,6 +174,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+import config from '../config.js'
 import LimeExplanation from './LimeExplanation.vue'
 import ShapExplanation from './ShapExplanation.vue'
 
@@ -181,6 +191,17 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      limeExplanation: null,
+      shapExplanation: null,
+      limeLoading: false,
+      shapLoading: false,
+      limeError: null,
+      shapError: null,
+      apiBaseUrl: config.apiBaseUrl
+    }
+  },
   computed: {
     circumference() {
       return 2 * Math.PI * 35 // radius is 35
@@ -192,6 +213,62 @@ export default {
       if (prediction === 'truthful') return 'Truthful'
       return prediction.charAt(0).toUpperCase() + prediction.slice(1)
     },
+    
+    async loadLimeExplanation() {
+      if (this.limeLoading || this.limeExplanation) return
+      
+      this.limeLoading = true
+      this.limeError = null
+      
+      try {
+        const response = await axios.post(`${this.apiBaseUrl}/explain/lime`, {
+          text: this.results.original_text,
+          model: this.results.model_used
+        })
+        this.limeExplanation = response.data.lime_explanation
+      } catch (error) {
+        console.error('Failed to load LIME explanation:', error)
+        this.limeError = error.response?.data?.error || 'Failed to load LIME explanation'
+      } finally {
+        this.limeLoading = false
+      }
+    },
+    
+    async loadShapExplanation() {
+      if (this.shapLoading || this.shapExplanation) return
+      
+      this.shapLoading = true
+      this.shapError = null
+      
+      try {
+        const response = await axios.post(`${this.apiBaseUrl}/explain/shap`, {
+          text: this.results.original_text,
+          model: this.results.model_used
+        })
+        this.shapExplanation = response.data.shap_explanation
+      } catch (error) {
+        console.error('Failed to load SHAP explanation:', error)
+        this.shapError = error.response?.data?.error || 'Failed to load SHAP explanation'
+      } finally {
+        this.shapLoading = false
+      }
+    },
+    
+    onTabChange(tab) {
+      // Explanations are already loading from mounted(), but this ensures they're loaded if user manually retries
+      if (tab === 'shap' && !this.shapExplanation && !this.shapLoading) {
+        this.loadShapExplanation()
+      }
+      if (tab === 'lime' && !this.limeExplanation && !this.limeLoading) {
+        this.loadLimeExplanation()
+      }
+    }
+  },
+  
+  mounted() {
+    // Auto-load both LIME and SHAP explanations immediately when results are displayed
+    this.loadLimeExplanation()
+    this.loadShapExplanation()
   }
 }
 </script>

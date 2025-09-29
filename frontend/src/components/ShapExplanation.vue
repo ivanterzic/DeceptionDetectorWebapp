@@ -14,7 +14,36 @@
     <!-- Feature Importance List -->
     <div class="feature-list">
       <h6 class="mb-3">Top Contributing Words</h6>
-      <div v-if="shapExplanation && shapExplanation.length > 0">
+      
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Generating SHAP explanation...</p>
+      </div>
+      
+      <!-- Error State -->
+      <div v-else-if="error" class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+        <button @click="$emit('load-explanation')" class="btn btn-sm btn-outline-primary ms-2">
+          Try Again
+        </button>
+      </div>
+      
+      <!-- No Explanation State -->
+      <div v-else-if="!shapExplanation" class="text-center py-4">
+        <i class="fas fa-chart-bar mb-2" style="font-size: 2rem; color: #ddd;"></i>
+        <p class="text-muted mb-3">SHAP explanation not loaded yet</p>
+        <button @click="$emit('load-explanation')" class="btn btn-primary">
+          <i class="fas fa-play me-2"></i>
+          Load SHAP Explanation
+        </button>
+      </div>
+      
+      <!-- Explanation Results -->
+      <div v-else-if="shapExplanation && shapExplanation.length > 0">
         <div
           v-for="(item, index) in shapExplanation.slice(0, 10)"
           :key="index"
@@ -41,7 +70,9 @@
           </div>
         </div>
       </div>
-      <div v-else class="text-muted">
+      
+      <!-- Empty Results -->
+      <div v-else class="text-muted text-center py-4">
         <i class="fas fa-info-circle me-2"></i>
         No SHAP explanation available for this text.
       </div>
@@ -55,9 +86,18 @@ export default {
   props: {
     shapExplanation: {
       type: Array,
-      default: () => []
+      default: null
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    error: {
+      type: String,
+      default: null
     }
-  }
+  },
+  emits: ['load-explanation']
 }
 </script>
 
