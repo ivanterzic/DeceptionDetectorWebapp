@@ -63,8 +63,8 @@ def preload_model(model_key: str, model_path: str, print_logs=True) -> None:
         # Log GPU memory after loading
         if device >= 0 and torch.cuda.is_available():
             memory_used = torch.cuda.memory_allocated() / 1024**3
-            #if print_logs:
-                #print(f"🎮 GPU memory after loading {model_key}: {memory_used:.2f} GB")
+            if print_logs:
+                print(f"🎮 GPU memory after loading {model_key}: {memory_used:.2f} GB")
         
         end_time = time.time()
         if print_logs:
@@ -153,30 +153,53 @@ def get_pred_probs(model_key: str, texts: str | List[str], label_mapping=None) -
         prob_key = f"{model_key}_probs"
         if prob_key not in _model_cache:
             print(f"🔧 Creating probability pipeline for {model_key}")
-            # Get the model path from the regular cached model
-            classifier = get_cached_model(model_key)
-            # Create a probability version
-            from model_utils import get_model_path
-            model_path = get_model_path(model_key)
-            device = get_device()
             
-            # Check GPU memory
-            if device >= 0:
-                try:
-                    memory_free = (torch.cuda.get_device_properties(0).total_memory - 
-                                  torch.cuda.memory_allocated()) / 1024**3
-                    if memory_free < 1.0:
-                        print(f"⚠️ Low GPU memory ({memory_free:.1f} GB), using CPU for probability pipeline")
+            # Handle custom models differently
+            if model_key.startswith("custom_"):
+                # For custom models, use the model from cache directly
+                if model_key in _model_cache:
+                    # Get the pipeline from cache and create a new top_k=None version
+                    cached_pipeline = _model_cache[model_key]
+                    device = get_device()
+                    
+                    # Create a new pipeline with top_k=None using the same model path
+                    # We need to get the model path from the custom model directory
+                    model_code = model_key.replace("custom_", "")
+                    from training_routes import CUSTOM_MODELS_DIR
+                    model_path = CUSTOM_MODELS_DIR / model_code / 'model'
+                    
+                    prob_classifier = pipeline(
+                        "text-classification",
+                        model=str(model_path),
+                        top_k=None,
+                        device=device
+                    )
+                else:
+                    raise ValueError(f"Custom model {model_key} not found in cache")
+            else:
+                # For regular models, use the normal path
+                from model_utils import get_model_path
+                model_path = get_model_path(model_key)
+                device = get_device()
+                
+                # Check GPU memory
+                if device >= 0:
+                    try:
+                        memory_free = (torch.cuda.get_device_properties(0).total_memory - 
+                                      torch.cuda.memory_allocated()) / 1024**3
+                        if memory_free < 1.0:
+                            print(f"⚠️ Low GPU memory ({memory_free:.1f} GB), using CPU for probability pipeline")
+                            device = -1
+                    except:
                         device = -1
-                except:
-                    device = -1
-            
-            prob_classifier = pipeline(
-                "text-classification", 
-                model=model_path, 
-                top_k=None, 
-                device=device
-            )
+                
+                prob_classifier = pipeline(
+                    "text-classification", 
+                    model=model_path, 
+                    top_k=None, 
+                    device=device
+                )
+                
             _model_cache[prob_key] = prob_classifier
             print(f"✅ Probability pipeline cached: {prob_key}")
         

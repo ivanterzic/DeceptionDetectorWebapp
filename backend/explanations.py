@@ -59,7 +59,7 @@ def get_lime_explanation(model_key: str, text: str, label_mapping=None) -> List[
         # Log GPU memory if available
         if torch.cuda.is_available():
             memory_used = torch.cuda.memory_allocated() / 1024**3
-            #print(f"🎮 GPU memory after LIME: {memory_used:.2f} GB")
+            print(f"🎮 GPU memory after LIME: {memory_used:.2f} GB")
         
         return result
         
@@ -111,27 +111,37 @@ def get_shap_explanation(model_key: str, text: str) -> List[Tuple[str, float]]:
         else:
             # Fallback: create explainer on demand
             print(f"🔧 Creating SHAP explainer on demand for {model_key}")
-            from model_utils import get_model_path
-            model_path = get_model_path(model_key)
-            device = 0 if torch.cuda.is_available() else -1
             
-            # Check GPU memory before creating explainer
-            if device >= 0:
-                try:
-                    memory_free = (torch.cuda.get_device_properties(0).total_memory - 
-                                  torch.cuda.memory_allocated()) / 1024**3
-                    if memory_free < 1.0:
-                        print(f"⚠️ Low GPU memory ({memory_free:.1f} GB), using CPU for SHAP explainer")
-                        device = -1
-                except:
-                    device = -1
+            # Handle custom models differently
+            if model_key.startswith("custom_"):
+                # For custom models, use the model path directly
+                if model_key in _model_cache:
+                    # Get the model path from the custom model directory
+                    model_code = model_key.replace("custom_", "")
+                    from training_routes import CUSTOM_MODELS_DIR
+                    model_path = CUSTOM_MODELS_DIR / model_code / 'model'
+                    device = 0 if torch.cuda.is_available() else -1
+                    
+                    classifier = pipeline(
+                        "text-classification",
+                        model=str(model_path),
+                        top_k=None,
+                        device=device
+                    )
+                else:
+                    raise ValueError(f"Custom model {model_key} not found in cache")
+            else:
+                # For regular models, use the normal path
+                from model_utils import get_model_path
+                model_path = get_model_path(model_key)
+                device = 0 if torch.cuda.is_available() else -1
+                classifier = pipeline(
+                    "text-classification", 
+                    model=model_path, 
+                    top_k=None, 
+                    device=device
+                )
             
-            classifier = pipeline(
-                "text-classification", 
-                model=model_path, 
-                top_k=None, 
-                device=device
-            )
             explainer = shap.Explainer(classifier)
             _model_cache[shap_key] = explainer
             print(f"✅ SHAP explainer cached: {shap_key}")
@@ -153,7 +163,7 @@ def get_shap_explanation(model_key: str, text: str) -> List[Tuple[str, float]]:
         # Log GPU memory if available
         if torch.cuda.is_available():
             memory_used = torch.cuda.memory_allocated() / 1024**3
-            #print(f"🎮 GPU memory after SHAP: {memory_used:.2f} GB")
+            print(f"🎮 GPU memory after SHAP: {memory_used:.2f} GB")
         
         return result
     except Exception as e:

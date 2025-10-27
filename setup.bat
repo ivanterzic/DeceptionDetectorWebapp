@@ -29,20 +29,33 @@ if not exist node_modules (
 cd ..
 
 echo.
-echo [3/4] Downloading Models...
+echo [3/5] Downloading Pre-trained Models...
 echo This may take several minutes for first-time setup.
 echo.
 call download-models.bat
 if %ERRORLEVEL% NEQ 0 (
     echo.
-    echo Warning: Model download encountered issues.
+    echo Warning: Pre-trained model download encountered issues.
     echo You can run 'download-models.bat' later to retry.
-    echo The app will still work but may be slower on first prediction because of model downloading.
+    echo The app will still work but may be slower on first prediction.
     echo.
 )
 
 echo.
-echo [4/4] Setup Complete!
+echo [4/5] Setting up Base Models for Training...
+echo This will download and cache base models to speed up training.
+echo.
+call setup-base-models.bat
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo Warning: Base model setup encountered issues.
+    echo You can run 'setup-base-models.bat' later to retry.
+    echo Training will still work but may download models on-demand.
+    echo.
+)
+
+echo.
+echo [5/5] Setup Complete!
 echo.
 echo To start the application:
 echo 1. Run 'start-backend.bat' in one terminal

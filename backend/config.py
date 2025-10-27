@@ -7,6 +7,7 @@ LABEL_MAPPING = {'0': 'deceptive', '1': 'truthful'}
 CLASS_NAMES = ['deceptive', 'truthful']
 
 MODELS_DIR = Path(__file__).parent / 'models'
+BASE_MODELS_DIR = Path(__file__).parent / 'base_models'
 
 def get_available_models():
     """Dynamically discover available models from the models directory and models.txt"""

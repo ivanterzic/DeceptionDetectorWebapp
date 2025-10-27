@@ -1,5 +1,5 @@
 <template>
-  <div class="shap-explanation">
+  <div class="shap-explanation" v-if="isActive">
     <div class="explanation-header mb-3">
       <h6>
         <i class="fas fa-chart-bar me-2"></i>
@@ -13,18 +13,18 @@
 
     <!-- Feature Importance List -->
     <div class="feature-list">
-      <h6 class="mb-3">Top Contributing Words</h6>
+      <h6 class="mb-2">Top Contributing Words</h6>
       
       <!-- Loading State -->
-      <div v-if="loading" class="text-center py-4">
-        <div class="spinner-border text-primary" role="status">
+      <div v-if="loading" class="text-center py-2">
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-2 text-muted">Generating SHAP explanation...</p>
+        <p class="mt-1 text-muted small">Generating SHAP explanation...</p>
       </div>
       
       <!-- Error State -->
-      <div v-else-if="error" class="alert alert-warning">
+      <div v-else-if="error" class="alert alert-warning py-2 mb-2">
         <i class="fas fa-exclamation-triangle me-2"></i>
         {{ error }}
         <button @click="$emit('load-explanation')" class="btn btn-sm btn-outline-primary ms-2">
@@ -33,11 +33,11 @@
       </div>
       
       <!-- No Explanation State -->
-      <div v-else-if="!shapExplanation" class="text-center py-4">
-        <i class="fas fa-chart-bar mb-2" style="font-size: 2rem; color: #ddd;"></i>
-        <p class="text-muted mb-3">SHAP explanation not loaded yet</p>
-        <button @click="$emit('load-explanation')" class="btn btn-primary">
-          <i class="fas fa-play me-2"></i>
+      <div v-else-if="!shapExplanation && isActive" class="text-center py-2">
+        <i class="fas fa-chart-bar mb-1" style="font-size: 1.5rem; color: #ddd;"></i>
+        <p class="text-muted mb-2 small">SHAP explanation not loaded yet</p>
+        <button @click="$emit('load-explanation')" class="btn btn-sm btn-primary">
+          <i class="fas fa-play me-1"></i>
           Load SHAP Explanation
         </button>
       </div>
@@ -47,22 +47,12 @@
         <div
           v-for="(item, index) in shapExplanation.slice(0, 10)"
           :key="index"
-          class="explanation-item d-flex justify-content-between align-items-center py-2 border-bottom"
+          class="explanation-item d-flex justify-content-between align-items-center py-1 border-bottom"
         >
           <span class="fw-bold word-label">{{ item[0] }}</span>
           <div class="d-flex align-items-center">
-            <div
-              class="progress explanation-bar me-2"
-              style="width: 120px; height: 12px;"
-            >
-              <div
-                class="progress-bar"
-                :class="item[1] > 0 ? 'bg-success' : 'bg-danger'"
-                :style="{ width: Math.min(Math.abs(item[1] * 100), 100) + '%' }"
-              ></div>
-            </div>
             <span
-              class="badge explanation-value"
+              class="badge explanation-value me-2"
               :class="item[1] > 0 ? 'bg-success' : 'bg-danger'"
             >
               {{ item[1].toFixed(3) }}
@@ -72,7 +62,7 @@
       </div>
       
       <!-- Empty Results -->
-      <div v-else class="text-muted text-center py-4">
+      <div v-else-if="isActive" class="text-muted text-center py-2">
         <i class="fas fa-info-circle me-2"></i>
         No SHAP explanation available for this text.
       </div>
@@ -95,6 +85,10 @@ export default {
     error: {
       type: String,
       default: null
+    },
+    isActive: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['load-explanation']

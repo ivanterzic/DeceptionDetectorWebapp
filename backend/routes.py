@@ -6,6 +6,7 @@ from config import AVAILABLE_MODELS, LABEL_MAPPING
 from model_utils import get_model_path
 from ai_utils import hf_pretrained_classify
 from explanations import get_lime_explanation, get_shap_explanation
+from training_routes import register_training_routes
 
 def check_text_length(text, model_key, max_tokens=512):
     """
@@ -32,17 +33,20 @@ def check_text_length(text, model_key, max_tokens=512):
         
     except Exception as e:
         # Fallback to character count if tokenizer fails
-        if len(text) > 2000:
-            return False, -1, "Text is too long. Please limit to 2000 characters."
+        if len(text) > 1300:
+            return False, -1, "Text is too long. Please limit to 1300 characters."
         return True, -1, None
 
 
 def register_routes(app):
     """Register all API routes with the Flask app."""
     
+    # Register training routes
+    register_training_routes(app)
+    
     @app.route('/api/models', methods=['GET'])
     def get_models():
-        """Get available models."""
+        """Get available pretrained models."""
         return jsonify(list(AVAILABLE_MODELS.keys()))
 
     @app.route('/api/predict', methods=['POST'])

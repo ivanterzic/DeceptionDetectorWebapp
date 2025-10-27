@@ -11,7 +11,11 @@ npm-debug.log*
 
 # Downloaded ML models 
 backend/models/*
+backend/custom_models/*
+backend/base_models/*
 !backend/models/.gitkeep
+!backend/custom_models/.gitkeep
+!backend/base_models/.gitkeep
 
 # Notebook with HF scripts
 notebooks/

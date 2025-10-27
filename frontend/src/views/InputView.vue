@@ -1,27 +1,39 @@
 <template>
   <div class="input-view">
-    <div class="container">
+    <div class="container mt-4">
+      <!-- Header -->
       <div class="row">
-        <div class="col-lg-8 mx-auto">
-          <div class="text-center mb-5">
-            <h1 class="display-4 mb-3">
-              <i class="fas fa-user-secret me-3"></i>
-              Deception Detector
-            </h1>
-            <p class="lead text-muted">
-              Advanced AI-powered analysis to detect deception and misinformation in text
-            </p>
+        <div class="">
+          <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+              <h3 class="card-title mb-0">
+                <i class="fas fa-search me-2"></i>
+                Text Analysis
+              </h3>
+              <p class="mb-0 mt-2 small opacity-90">
+                Analyze text for deception using advanced AI models
+              </p>
+            </div>
           </div>
-          
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="">
           <InputForm 
             :available-models="availableModels"
             @analyze="handleAnalyze"
           />
           
           <!-- Error Message -->
-          <div v-if="error" class="alert alert-danger mt-4">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            {{ error }}
+          <div v-if="error" class="alert alert-danger border-0 shadow-sm mt-4">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.5rem;"></i>
+              <div>
+                <h6 class="alert-heading mb-1">Analysis Failed</h6>
+                <p class="mb-0">{{ error }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -60,19 +72,7 @@ export default {
 
 <style scoped>
 .input-view {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #000000 0%, #3628af 100%);
-  color: white;
-  padding: 2rem 0;
-  display: flex;
-  align-items: center;
-}
-
-.display-4 {
-  font-weight: 300;
-}
-
-.lead {
-  color: rgba(255, 255, 255, 0.8) !important;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 100px);
 }
 </style>

@@ -8,15 +8,12 @@
               <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
-              <h4 class="mb-3">Analyzing Text...</h4>
+              <h4 class="mb-3">{{ title }}</h4>
               <p class="text-muted mb-4">
-                Our AI model is processing your text for deception detection.
-                This may take a few moments. 
-                <br>
-                Please do not reset the page.
+                {{ message }}
               </p>
               
-              <div class="mt-4">
+              <div v-if="showCancelButton" class="mt-4">
                 <button 
                   @click="$emit('cancel')" 
                   class="btn btn-outline-secondary"
@@ -34,7 +31,21 @@
 
 <script>
 export default {
-  name: 'LoadingScreen'
+  name: 'LoadingScreen',
+  props: {
+    title: {
+      type: String,
+      default: 'Analyzing Text...'
+    },
+    message: {
+      type: String,
+      default: 'Our AI model is processing your text for deception detection. This may take a few moments. Please do not reset the page.'
+    },
+    showCancelButton: {
+      type: Boolean,
+      default: true
+    }
+  }
 }
 </script>
 

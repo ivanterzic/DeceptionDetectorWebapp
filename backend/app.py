@@ -6,6 +6,7 @@ from config import API_HOST, API_PORT, DEBUG_MODE, AVAILABLE_MODELS
 from routes import register_routes
 from ai_utils import preload_model
 from model_utils import get_model_path
+import base_model_init  # Initialize base model cache on startup
 
 
 def preload_explainers():
@@ -61,7 +62,7 @@ def preload_explainers():
                 # Log memory after probability pipeline
                 if device >= 0 and torch.cuda.is_available():
                     memory_used = torch.cuda.memory_allocated() / 1024**3
-                    #print(f"🎮 GPU memory after prob pipeline: {memory_used:.2f} GB")
+                    print(f"🎮 GPU memory after prob pipeline: {memory_used:.2f} GB")
             
             # Preload SHAP explainer
             shap_key = f"{model_key}_shap"
@@ -76,7 +77,7 @@ def preload_explainers():
                 # Log memory after SHAP explainer
                 if device >= 0 and torch.cuda.is_available():
                     memory_used = torch.cuda.memory_allocated() / 1024**3
-                    #print(f"🎮 GPU memory after SHAP: {memory_used:.2f} GB")
+                    print(f"🎮 GPU memory after SHAP: {memory_used:.2f} GB")
             
             model_end = time.time()
             print(f"⚡ Explainer preload for {model_key}: {model_end - model_start:.2f}s")
@@ -142,6 +143,10 @@ def main():
     
     # Preload all models before starting the server
     preload_all_models()
+    
+    # Start cleanup service for custom models
+    from cleanup_service import cleanup_service
+    cleanup_service.start()
     
     app = create_app()
     print(f"🌐 Server ready to start on http://{API_HOST}:{API_PORT}")

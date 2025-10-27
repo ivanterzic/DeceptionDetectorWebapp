@@ -1,5 +1,5 @@
 <template>
-  <div class="analysis-view">
+  <div class="analysis-view container">
     <AnalysisResults 
       :results="results"
       @back="$emit('back')"
@@ -26,6 +26,6 @@ export default {
 
 <style scoped>
 .analysis-view {
-  min-height: 100vh;
+  background-color: #f8f9fa;
 }
 </style>

@@ -6,3 +6,7 @@ lime
 shap
 numpy
 scikit-learn
+pandas
+datasets
+accelerate
+schedule

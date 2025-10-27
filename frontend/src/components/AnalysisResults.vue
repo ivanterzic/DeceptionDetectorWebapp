@@ -1,19 +1,33 @@
 <template>
   <div class="analysis-results">
-    <div class="container">
-      <!-- Header with back button -->
-      <div class="row mb-4">
-        <div class="col">
-          <button @click="$emit('back')" class="btn btn-outline-primary mb-3">
-            <i class="fas fa-arrow-left me-2"></i>
-            Analyze Another Text
-          </button>
-          <h2 class="mb-0">Analysis Results</h2>
+    <div>
+      <!-- Header -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Analysis Results
+                  </h3>
+                  <p class="mb-0 mt-2 small opacity-90">
+                    Deception detection analysis complete
+                  </p>
+                </div>
+                <button @click="$emit('back')" class="btn btn-outline-light">
+                  <i class="fas fa-arrow-left me-2"></i>
+                  Analyze Another
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Prediction Results -->
-      <div class="row mb-4">
+      <div class="row mt-4 mb-4">
         <div class="col-md-6">
           <div class="card border-0 shadow-sm result-card">
             <div class="card-body text-center">
@@ -129,13 +143,14 @@
                 </li>
               </ul>
 
-              <div class="tab-content mt-3">
+              <div class="mt-3">
                 <!-- LIME Tab -->
                 <div class="tab-pane fade show active" id="lime-tab" role="tabpanel">
                   <LimeExplanation 
                     :lime-explanation="limeExplanation"
                     :loading="limeLoading"
                     :error="limeError"
+                    :is-active="activeTab === 'lime'"
                     @load-explanation="loadLimeExplanation"
                   />
                 </div>
@@ -146,6 +161,7 @@
                     :shap-explanation="shapExplanation"
                     :loading="shapLoading"
                     :error="shapError"
+                    :is-active="activeTab === 'shap'"
                     @load-explanation="loadShapExplanation"
                   />
                 </div>
@@ -189,6 +205,14 @@ export default {
     results: {
       type: Object,
       required: true
+    },
+    limeEndpoint: {
+      type: String,
+      default: null
+    },
+    shapEndpoint: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -199,6 +223,7 @@ export default {
       shapLoading: false,
       limeError: null,
       shapError: null,
+      activeTab: 'lime', // Track which tab is currently active
       apiBaseUrl: config.apiBaseUrl
     }
   },
@@ -221,11 +246,14 @@ export default {
       this.limeError = null
       
       try {
-        const response = await axios.post(`${this.apiBaseUrl}/explain/lime`, {
-          text: this.results.original_text,
-          model: this.results.model_used
-        })
+        const endpoint = this.limeEndpoint || `${this.apiBaseUrl}/explain/lime`
+        const payload = this.limeEndpoint ? 
+          { text: this.results.original_text } : 
+          { text: this.results.original_text, model: this.results.model_used }
+          
+        const response = await axios.post(endpoint, payload)
         this.limeExplanation = response.data.lime_explanation
+        this.$emit('explanation-complete', 'LIME')
       } catch (error) {
         console.error('Failed to load LIME explanation:', error)
         this.limeError = error.response?.data?.error || 'Failed to load LIME explanation'
@@ -241,11 +269,14 @@ export default {
       this.shapError = null
       
       try {
-        const response = await axios.post(`${this.apiBaseUrl}/explain/shap`, {
-          text: this.results.original_text,
-          model: this.results.model_used
-        })
+        const endpoint = this.shapEndpoint || `${this.apiBaseUrl}/explain/shap`
+        const payload = this.shapEndpoint ? 
+          { text: this.results.original_text } : 
+          { text: this.results.original_text, model: this.results.model_used }
+          
+        const response = await axios.post(endpoint, payload)
         this.shapExplanation = response.data.shap_explanation
+        this.$emit('explanation-complete', 'SHAP')
       } catch (error) {
         console.error('Failed to load SHAP explanation:', error)
         this.shapError = error.response?.data?.error || 'Failed to load SHAP explanation'
@@ -255,6 +286,9 @@ export default {
     },
     
     onTabChange(tab) {
+      // Track which tab is currently active
+      this.activeTab = tab
+      
       // Explanations are already loading from mounted(), but this ensures they're loaded if user manually retries
       if (tab === 'shap' && !this.shapExplanation && !this.shapLoading) {
         this.loadShapExplanation()
@@ -275,7 +309,6 @@ export default {
 
 <style scoped>
 .analysis-results {
-  min-height: 100vh;
   background: #f8f9fa;
   padding: 2rem 0;
 }
