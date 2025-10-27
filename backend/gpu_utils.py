@@ -35,6 +35,18 @@ def get_optimal_device() -> int:
     logger.info("CUDA not available, using CPU")
     return -1
 
+def get_torch_device() -> torch.device:
+    """
+    Get the optimal torch device for model inference.
+    
+    Returns:
+        torch.device: Device object (cuda:N or cpu)
+    """
+    device_id = get_optimal_device()
+    if device_id == -1:
+        return torch.device('cpu')
+    return torch.device(f'cuda:{device_id}')
+
 def monitor_gpu_memory(operation_name: str, device_id: Optional[int] = None) -> None:
     """
     Monitor and log GPU memory usage.

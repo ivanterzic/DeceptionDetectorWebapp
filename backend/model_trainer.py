@@ -261,9 +261,12 @@ class ModelTrainer:
             self.metadata['validation_split'] = validation_split
             self._save_metadata()
             
-            # Load tokenizer and model from cache or download if needed
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            # Load tokenizer and model using optimal GPU device
+            from gpu_utils import get_torch_device, monitor_gpu_memory, get_optimal_device
+            device = get_torch_device()
+            device_id = get_optimal_device()
             print(f"🎮 Using device: {device}")
+            monitor_gpu_memory("before_model_load", device_id if device_id != -1 else None)
             
             # Check if base model is cached, download if not
             cached_model_path = get_cached_model_path(self.base_model)

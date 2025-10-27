@@ -1,7 +1,9 @@
 import torch
 from pathlib import Path
+from gpu_utils import get_torch_device
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# Get optimal device using gpu_utils
+DEVICE = get_torch_device()
 
 LABEL_MAPPING = {'0': 'deceptive', '1': 'truthful'}
 CLASS_NAMES = ['deceptive', 'truthful']
