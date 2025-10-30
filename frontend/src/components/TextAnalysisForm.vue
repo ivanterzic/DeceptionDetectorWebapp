@@ -10,7 +10,7 @@
               class="form-control form-control-lg"
               :class="{ 'is-invalid': isTextTooLong }"
               rows="8"
-              placeholder="Enter the text you want to analyze for deception..."
+              placeholder="Enter the text you want to analyze..."
               required
               maxlength="1300"
               style="resize: vertical; min-height: 200px;"

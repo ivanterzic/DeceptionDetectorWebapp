@@ -317,7 +317,7 @@
             
             <div v-if="downloadProgress?.status === 'completed'" class="alert alert-success">
               <i class="fas fa-check-circle me-2"></i>
-              Download completed! Your browser should start downloading the file.
+              File compressing completed! Your browser should start downloading the file.
             </div>
           </div>
           <div class="modal-footer">
