@@ -289,7 +289,7 @@
                   />
                   <circle 
                     cx="60" cy="60" r="50" 
-                    stroke="#667eea" 
+                    stroke="#FE483E" 
                     stroke-width="8" 
                     fill="none"
                     stroke-linecap="round"
@@ -673,8 +673,8 @@ export default {
 }
 
 .model-code-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+  border-color: #FE483E;
+  box-shadow: 0 0 0 0.25rem rgba(254, 72, 62, 0.25);
   transform: translateY(-1px);
 }
 
@@ -727,8 +727,8 @@ export default {
 }
 
 .form-control-lg:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+  border-color: #FE483E;
+  box-shadow: 0 0 0 0.25rem rgba(254, 72, 62, 0.25);
 }
 
 /* Cards */
@@ -773,7 +773,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FE483E 0%, #FF6B63 100%);
 }
 
 .btn-outline-info {
@@ -890,7 +890,7 @@ export default {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FE483E 0%, #FF6B63 100%);
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 

@@ -1,11 +1,10 @@
 <template>
   <div id="app">
     <!-- Navigation Tabs -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="#">
-          <i class="fas fa-user-secret me-2 text-primary" style="font-size: 1.5rem;"></i>
-          <span class="fw-bold">Deception Detector</span>
+          <img src="/logo.svg" alt="Deception Detector" class="logo-img me-2">
         </a>
         
         <!-- Tab Navigation -->
@@ -236,19 +235,42 @@ body {
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  color: #2c3e50;
+  color: #213544;
+}
+
+a {
+  color: #FE483E;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #e63d33;
+  text-decoration: none;
+}
+
+.text-primary {
+  color: #FE483E !important;
+}
+
+.bg-primary {
+  background-color: #FE483E !important;
+}
+
+.border-primary {
+  border-color: #FE483E !important;
 }
 
 /* Card Improvements */
 .card {
   border: none;
   border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(33, 53, 68, 0.08);
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(33, 53, 68, 0.12);
 }
 
 .card-header {
@@ -272,21 +294,21 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(254, 72, 62, 0.25);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FE483E 0%, #FF6B63 100%);
 }
 
 .btn-outline-primary {
-  border: 2px solid #667eea;
-  color: #667eea;
+  border: 2px solid #FE483E;
+  color: #FE483E;
 }
 
 .btn-outline-primary:hover {
-  background: #667eea;
-  border-color: #667eea;
+  background: #FE483E;
+  border-color: #FE483E;
 }
 
 .btn-lg {
@@ -303,19 +325,34 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  border-color: #FE483E;
+  box-shadow: 0 0 0 0.2rem rgba(254, 72, 62, 0.25);
 }
 
 /* Navigation Styles */
 .navbar {
   padding: 1rem 0;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+}
+
+.navbar.navbar-dark {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
 }
 
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .logo-img {
+  transform: scale(1.05);
 }
 
 .nav-tabs-transparent {
@@ -324,7 +361,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-tabs-transparent .nav-link {
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: #213544;
   background: transparent;
   transition: all 0.3s ease;
   border-radius: 10px;
@@ -333,16 +370,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-tabs-transparent .nav-link:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.15);
+  color: #FE483E;
+  background: rgba(254, 72, 62, 0.1);
   transform: translateY(-1px);
 }
 
 .nav-tabs-transparent .nav-link.active {
   color: white;
-  background: rgba(255, 255, 255, 0.25);
+  background: linear-gradient(135deg, #FE483E 0%, #FF6B63 100%);
   border-bottom: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(254, 72, 62, 0.3);
 }
 
 /* Tab Content */
