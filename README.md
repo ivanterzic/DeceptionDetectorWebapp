@@ -1,28 +1,60 @@
-# Deception Detector
+# 🕵️ Deception Detector
 
-Full-stack web application for detecting deception in text using AI. Features pre-trained transformer models (BERT, DeBERTa) for COVID-19 and climate change datasets, plus custom model fine-tuning capabilities with explainable AI (LIME/SHAP).
+AI-powered web application for detecting deception in text using state-of-the-art transformer models. Analyze text with pre-trained models or fine-tune your own on custom datasets with full explainability.
 
-**Tech Stack:** Vue.js frontend, Flask backend, PyTorch, Hugging Face Transformers
+**Tech Stack:** Vue.js • Flask • PyTorch • Hugging Face Transformers
 
-## Features
+---
 
-- **Text Analysis**: Detect deception in text with confidence scores
-- **Multiple Models**: Choose from pre-trained BERT/DeBERTa models
-- **Custom Training**: Fine-tune models on your own CSV data (text + label columns)
-- **Explainable AI**: LIME and SHAP visualizations showing word importance
-- **Real-time Progress**: Live tracking for model training and downloads
-- **Auto-cleanup**: Models expire after 7 days, downloads after 24 hours
+## ✨ Features
 
-## Getting Started
+### 🔍 Text Analysis
+- **Deception Detection**: Analyze text to determine if it's deceptive or truthful
+- **Confidence Scores**: Get probability scores for each prediction
+- **Multiple Models**: Choose from BERT and DeBERTa models trained on COVID-19 and climate change datasets
+- **Batch Processing**: Analyze multiple texts efficiently
+
+### 🎓 Custom Model Training
+- **Fine-tuning**: Train models on your own labeled datasets (CSV format)
+- **Multiple Base Models**: Choose from BERT, DeBERTa, RoBERTa, ALBERT, or DistilBERT
+- **Configurable Training**: Adjust epochs, batch size, learning rate, and validation split
+- **6-Digit Model Codes**: Easy access to your trained models
+- **Background Training**: Models train asynchronously while you work
+- **Progress Tracking**: Real-time updates on training status
+
+### 🧠 Explainable AI
+- **LIME Explanations**: See which words influenced the prediction most
+- **SHAP Values**: Understand feature importance with Shapley values
+- **Visual Highlights**: Color-coded word importance in the text
+- **Dual Explanations**: Compare LIME and SHAP side-by-side
+
+### 📦 Model Management
+- **Download Models**: Export trained models as ZIP archives
+- **Real-time Progress**: Live tracking for model downloads with file-by-file progress
+- **Auto-cleanup**: Custom models expire after 7 days, downloads after 24 hours
+- **Model Codes**: Simple 6-digit codes for easy model access
+
+### ⚡ Performance
+- **GPU Support**: Automatic GPU detection and usage for faster training/inference
+- **CPU Fallback**: Works without GPU (slower but functional)
+- **Memory Optimization**: Efficient memory management for large models
+- **Caching**: Base models cached locally to speed up training
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
-- Node.js 14+
-- 4GB+ RAM (8GB recommended for training)
-- Optional: CUDA-compatible GPU for faster training
+| Requirement | Minimum | Recommended |
+|------------|---------|-------------|
+| Python | 3.8+ | 3.9+ |
+| Node.js | 14+ | 16+ |
+| RAM | 4GB | 8GB+ |
+| Storage | 10GB | 20GB+ |
+| GPU | - | CUDA 11.7+ |
 
-### Quick Start
+### Installation
 
 ### Quick Start
 
@@ -60,151 +92,366 @@ npm install
 npm run serve  # Runs on http://localhost:8080
 ```
 
-### What the Scripts Do
+### Installation
 
-- **setup.bat**: Installs Python dependencies, Node.js dependencies, and downloads all pre-trained models
-- **start-backend.bat**: Activates Python environment and starts Flask API server
-- **start-frontend.bat**: Starts Vue.js development server with hot-reload
-- **download_models.py**: Downloads pre-trained BERT/DeBERTa models from Hugging Face to `backend/models/`
+#### Windows (Recommended)
 
-### Usage
+```bash
+# One-command setup - installs everything and downloads models
+setup.bat
 
-1. **Analyze Text** (Pre-trained Models):
-   - Go to "Text Analysis" tab
-   - Enter text (max 1300 words)
-   - Select model (e.g., BERT COVID-19, DeBERTa Climate Change)
+# Start the application (2 terminals)
+start-backend.bat   # Terminal 1: Flask API (port 5000)
+start-frontend.bat  # Terminal 2: Vue.js app (port 8080)
+```
+
+Then open http://localhost:8080 in your browser.
+
+#### Linux/Mac
+
+```bash
+# Backend setup
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Download pre-trained models (5-15 minutes)
+cd ..
+python3 download_models.py
+
+# Start backend (Terminal 1)
+python backend/app.py
+
+# Frontend setup (Terminal 2)
+cd frontend
+npm install
+npm run serve
+```
+
+Then open http://localhost:8080 in your browser.
+
+---
+
+## 📖 How to Use
+
+### 1️⃣ Analyze Text with Pre-trained Models
+
+1. Click the **"Analysis"** tab
+2. Enter or paste your text (up to 1300 words)
+3. Select a model from the dropdown:
+   - BERT COVID-19
+   - BERT Climate Change
+   - BERT Combined
+   - DeBERTa COVID-19
+   - DeBERTa Climate Change
+   - DeBERTa Combined
+4. Click **"Analyze Text"**
+5. View results:
+   - **Prediction**: Deceptive or Truthful
+   - **Confidence**: Probability score
+   - **LIME**: Word-level importance highlighting
+   - **SHAP**: Feature impact visualization
+
+### 2️⃣ Train Your Own Model
+
+1. **Prepare your data**:
+   - Create a CSV file with two columns: `text` and `label`
+   - Labels: `0` = deceptive, `1` = truthful
+   - Minimum 100 rows recommended
+
+2. Click the **"Fine-tuning"** tab
+
+3. **Upload CSV** and review validation:
+   - Total rows
+   - Label distribution
+   - Sample preview
+
+4. **Configure training**:
+   - **Base Model**: BERT, DeBERTa, RoBERTa, ALBERT, or DistilBERT
+   - **Model Name**: Give it a memorable name
+   - **Epochs**: 2-5 (more = better but slower)
+   - **Batch Size**: 8-16 (lower if GPU memory limited)
+   - **Learning Rate**: 2e-5 (default works well)
+   - **Validation Split**: 0.2 (20% for validation)
+
+5. Click **"Start Training"**
+
+6. **Save your 6-digit code** (e.g., `abc123`)
+
+7. Monitor progress:
+   - Training phase
+   - Current epoch
+   - Validation metrics
+   - Estimated time remaining
+
+8. Training typically takes 5-30 minutes depending on:
+   - Dataset size
+   - Base model choice
+   - Hardware (GPU vs CPU)
+   - Number of epochs
+
+### 3️⃣ Use Your Custom Model
+
+1. Click the **"Model Access"** tab
+
+2. Enter your **6-digit model code**
+
+3. Click **"Access Model"**
+
+4. View model details:
+   - Model name
+   - Base model used
+   - Creation date
+   - Expiration date (7 days from creation)
+
+5. **Analyze text** with your model:
+   - Enter text
    - Click "Analyze Text"
-   - View prediction, confidence score, and LIME/SHAP explanations
+   - View predictions and explanations
 
-2. **Train Custom Model**:
-   - Prepare CSV with `text` and `label` columns (0=deceptive, 1=truthful)
-   - Go to "Model Training" tab
-   - Upload CSV, configure settings (epochs, batch size, learning rate)
-   - Click "Start Training" and save your 6-digit code
-   - Training runs in background (5-30 minutes depending on data size)
+6. **Download model** (optional):
+   - Click "Download Model"
+   - Watch real-time progress (file-by-file)
+   - Archive includes model weights, config, tokenizer
+   - Download expires after 24 hours
 
-3. **Use Custom Model**:
-   - Go to "Custom Model" tab
-   - Enter your 6-digit code
-   - Analyze text or download model archive
+---
 
-## Project Structure
+## 🗂️ Project Structure
+
+## 🗂️ Project Structure
 
 ```
 webapp/
-├── backend/
-│   ├── app.py              # Flask API server
-│   ├── routes.py           # Pre-trained model endpoints
-│   ├── training_routes.py  # Custom training endpoints
-│   ├── ai_utils.py         # Model inference logic
-│   ├── model_trainer.py    # Training logic with progress tracking
-│   ├── explanations.py     # LIME/SHAP generators
-│   ├── gpu_utils.py        # GPU device management
-│   ├── config.py           # App configuration
-│   ├── models/             # Downloaded pre-trained models
-│   └── custom_models/      # User-trained models
-├── frontend/
+├── backend/                    # Flask API server
+│   ├── app.py                 # Main application entry
+│   ├── routes.py              # Pre-trained model API routes
+│   ├── training_routes.py     # Custom training API routes
+│   ├── ai_utils.py            # Model inference engine
+│   ├── model_trainer.py       # Training orchestration
+│   ├── explanations.py        # LIME/SHAP generators
+│   ├── gpu_utils.py           # GPU management utilities
+│   ├── config.py              # Configuration settings
+│   ├── requirements.txt       # Python dependencies
+│   ├── models/                # Pre-trained models storage
+│   ├── base_models/           # Cached base models for training
+│   └── custom_models/         # User-trained models (auto-expire)
+│
+├── frontend/                   # Vue.js application
 │   ├── src/
-│   │   ├── components/     # Vue components
-│   │   ├── views/          # Main views (Analysis, Training, Custom)
-│   │   ├── App.vue         # Root component
-│   │   └── config.js       # API endpoint configuration
-│   └── public/
-├── setup.bat               # Windows setup script
-├── start-backend.bat       # Backend startup
-├── start-frontend.bat      # Frontend startup
-├── download_models.py      # Model download script
-└── models.txt              # List of Hugging Face models to download
+│   │   ├── components/        # Reusable Vue components
+│   │   │   ├── AnalysisResults.vue
+│   │   │   ├── InputForm.vue
+│   │   │   ├── LimeExplanation.vue
+│   │   │   ├── ShapExplanation.vue
+│   │   │   └── LoadingScreen.vue
+│   │   ├── views/             # Main application views
+│   │   │   ├── AnalysisView.vue    # Pre-trained analysis
+│   │   │   ├── TrainingView.vue    # Model fine-tuning
+│   │   │   └── CustomModelView.vue # Custom model access
+│   │   ├── App.vue            # Root component
+│   │   ├── main.js            # Vue app initialization
+│   │   └── config.js          # API configuration
+│   ├── public/
+│   │   ├── index.html         # HTML template
+│   │   ├── logo.svg           # Application logo
+│   │   └── favicon.png        # Browser icon
+│   └── package.json           # Node.js dependencies
+│
+├── DDetection-logo/           # Brand assets
+├── setup.bat                  # Windows one-click setup
+├── start-backend.bat          # Backend launcher
+├── start-frontend.bat         # Frontend launcher
+├── download_models.py         # Model download script
+├── models.txt                 # List of models to download
+└── README.md                  # This file
 ```
 
-## Deployment (Ubuntu)
+---
+
+## ⚙️ Configuration
+
+### Backend Settings
+
+Create a `.env` file in the `backend/` directory:
 
 ```bash
-# Install
-sudo apt update && apt install python3-pip python3-venv nginx nodejs npm -y
+# Server Configuration
+API_HOST=0.0.0.0
+API_PORT=5000
+FLASK_ENV=development
 
-# Setup
-cd /var/www && git clone repo deception-detector && cd deception-detector
-cd backend && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
-cd .. && python3 download_models.py
-cd frontend && npm install && npm run build
+# Model Management
+MODEL_EXPIRY_DAYS=7          # Custom models auto-delete after 7 days
+ZIP_EXPIRY_HOURS=24          # Downloaded archives expire after 24 hours
+MAX_SEQUENCE_LENGTH=512      # Maximum token length for models
+
+# GPU (optional)
+CUDA_VISIBLE_DEVICES=0       # Specify GPU device
 ```
 
-**Systemd** (`/etc/systemd/system/deception-detector.service`):
-```ini
-[Unit]
-Description=Deception Detector
-After=network.target
+### Frontend Settings
 
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/var/www/deception-detector/backend
-Environment="PATH=/var/www/deception-detector/backend/venv/bin"
-ExecStart=/var/www/deception-detector/backend/venv/bin/python app.py
-Restart=always
+Edit `frontend/src/config.js`:
 
-[Install]
-WantedBy=multi-user.target
-```
-
-**Nginx** (`/etc/nginx/sites-available/deception-detector`):
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    client_max_body_size 100M;
-
-    location / {
-        root /var/www/deception-detector/frontend/dist;
-        try_files $uri $uri/ /index.html;
-    }
-    location /api/ {
-        proxy_pass http://localhost:5000/api/;
-        proxy_set_header Host $host;
-        proxy_connect_timeout 600;
-        proxy_send_timeout 600;
-        proxy_read_timeout 600;
-    }
+```javascript
+export default {
+  apiBaseUrl: 'http://localhost:5000/api'  // Backend API URL
 }
 ```
 
-**Enable:**
+---
+
+## 🛠️ Troubleshooting
+
+### Backend Issues
+
+**Backend won't start**
 ```bash
-sudo systemctl enable deception-detector && sudo systemctl start deception-detector
-sudo ln -s /etc/nginx/sites-available/deception-detector /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl restart nginx
+# Check Python version
+python --version  # Need 3.8+
+
+# Reinstall dependencies
+cd backend
+pip install --upgrade -r requirements.txt
 ```
 
-## API
+**Models not found**
+```bash
+# Download models manually
+python download_models.py
 
-| Endpoint | Method |
-|----------|--------|
-| `/api/models` | GET |
-| `/api/predict` | POST |
-| `/api/lime` | POST |
-| `/api/shap` | POST |
-| `/api/training/start` | POST |
-| `/api/training/status/<code>` | GET |
-| `/api/custom/predict/<code>` | POST |
-| `/api/custom/download/<code>` | GET |
-
-## Config
-
-**Backend** `.env`:
-```
-API_PORT=5000
-MODEL_EXPIRY_DAYS=7
-ZIP_EXPIRY_HOURS=24
+# Verify models directory
+ls backend/models/  # Should show model folders
 ```
 
-**Frontend** `src/config.js`:
-```javascript
-export default { apiBaseUrl: 'http://your-server:5000/api' }
+**GPU not detected**
+```bash
+# Check CUDA availability
+python -c "import torch; print(torch.cuda.is_available())"
+
+# Check GPU memory
+nvidia-smi
 ```
 
-## Troubleshooting
+### Frontend Issues
 
-- Backend won't start: `pip install -r requirements.txt`
-- Models not found: `python download_models.py`
-- Training fails: Check CSV has `text` and `label` columns (0/1)
+**Connection errors**
+- Verify backend is running on port 5000
+- Check `frontend/src/config.js` has correct API URL
+- Ensure CORS is enabled in `backend/app.py`
+
+**Build failures**
+```bash
+# Clear cache and reinstall
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Training Issues
+
+**Training fails immediately**
+- Ensure CSV has `text` and `label` columns
+- Labels must be 0 (deceptive) or 1 (truthful)
+- Check for missing values in your data
+- Verify sufficient disk space (5GB+ free)
+
+**Out of memory errors**
+- Reduce batch size (try 4 or 8)
+- Use a smaller base model (DistilBERT)
+- Close other applications using GPU
+- Switch to CPU mode (slower but works)
+
+**Training very slow**
+- Enable GPU if available
+- Reduce number of epochs
+- Use a smaller dataset for testing
+- Try DistilBERT instead of BERT/DeBERTa
+
+---
+
+## 🔌 API Reference
+
+### Pre-trained Models
+
+**GET** `/api/models` - List available models
+
+**POST** `/api/predict` - Analyze text
+```json
+{
+  "text": "Your text here",
+  "model": "bert-covid-1"
+}
+```
+
+**POST** `/api/lime` - Get LIME explanation
+
+**POST** `/api/shap` - Get SHAP explanation
+
+### Custom Training
+
+**GET** `/api/training/models` - List base models for fine-tuning
+
+**POST** `/api/training/upload-csv` - Validate training data
+
+**POST** `/api/training/start` - Start model training
+
+**GET** `/api/training/status/<code>` - Check training progress
+
+**POST** `/api/training/cleanup` - Manually cleanup expired models
+
+### Custom Models
+
+**POST** `/api/custom/predict/<code>` - Predict with custom model
+
+**POST** `/api/custom/download/init/<code>` - Initialize download
+
+**GET** `/api/custom/download/<code>` - Download model archive
+
+**GET** `/api/custom/download-progress/<id>` - Track download progress
+
+---
+
+## 📝 Data Format
+
+### Training CSV Format
+
+```csv
+text,label
+"This is a truthful statement about climate.",1
+"This is a deceptive claim about vaccines.",0
+"Another truthful text example here.",1
+```
+
+**Requirements:**
+- Two columns: `text` and `label`
+- Labels: `0` = deceptive, `1` = truthful
+- Minimum 100 rows recommended
+- No missing values
+- UTF-8 encoding
+
+---
+
+## 🎨 Color Scheme
+
+The application uses the DDetection brand colors:
+
+- **Primary Red**: `#FE483E` - Buttons, accents, active states
+- **Dark Navy**: `#213544` - Text, headings, navbar
+- **Light Background**: `#f8f9fa` - Page background
+
+---
+
+## 📄 License
+
+[Your License Here]
+
+## 👥 Contributors
+
+[Your Team/Contributors]
+
+## 📧 Support
+
+For issues and questions, open an issue on GitHub or contact [your-email].
