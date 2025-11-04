@@ -24,8 +24,7 @@ AI-powered web application for detecting deception in text using state-of-the-ar
 
 ### 🧠 Explainable AI
 - **LIME Explanations**: See which words influenced the prediction most
-- **SHAP Values**: Understand feature importance with Shapley values
-- **Visual Highlights**: Color-coded word importance in the text
+- **SHAP Values**: Understand feature importance with Shaply values
 - **Dual Explanations**: Compare LIME and SHAP side-by-side
 
 ### 📦 Model Management
@@ -443,15 +442,3 @@ The application uses the DDetection brand colors:
 - **Light Background**: `#f8f9fa` - Page background
 
 ---
-
-## 📄 License
-
-[Your License Here]
-
-## 👥 Contributors
-
-[Your Team/Contributors]
-
-## 📧 Support
-
-For issues and questions, open an issue on GitHub or contact [your-email].
