@@ -10,6 +10,14 @@ import time
 from pathlib import Path
 import uuid
 
+from security import (
+    validate_text_input,
+    validate_model_code,
+    validate_csv_file,
+    validate_training_params,
+    rate_limit
+)
+from config import RATE_LIMIT_TRAINING, RATE_LIMIT_DEFAULT, RATE_LIMIT_ANALYSIS
 from model_trainer import (
     FINETUNING_MODELS,
     CUSTOM_MODELS_DIR,
@@ -28,6 +36,7 @@ def register_training_routes(app):
     """Register training-related API routes."""
 
     @app.route('/api/training/cleanup-zips', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def manual_zip_cleanup():
         """Manually trigger cleanup of expired custom model ZIPs (older than 24 hours)."""
         print("🧹 Manual ZIP cleanup triggered")
@@ -36,7 +45,7 @@ def register_training_routes(app):
             return jsonify({'success': True, 'message': 'ZIP cleanup completed'})
         except Exception as e:
             print(f"❌ ZIP cleanup error: {str(e)}")
-            return jsonify({'error': f'ZIP cleanup failed: {str(e)}'}), 500
+            return jsonify({'error': 'ZIP cleanup failed'}), 500
 
     # --- Scheduled ZIP Cleanup ---
     def start_zip_cleanup_scheduler():
@@ -79,6 +88,7 @@ def register_training_routes(app):
     start_zip_cleanup_scheduler()
 
     @app.route('/api/training/models', methods=['GET'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def get_training_models():
         """Get available base models for fine-tuning."""
         return jsonify({
@@ -89,6 +99,7 @@ def register_training_routes(app):
         })
     
     @app.route('/api/training/upload-csv', methods=['POST'])
+    @rate_limit(limit=20, window=60)  # Higher limit for CSV validation
     def upload_csv():
         """Upload and validate CSV data for training."""
         start_time = time.time()
@@ -105,19 +116,22 @@ def register_training_routes(app):
                 print("⚠️ Empty filename")
                 return jsonify({'error': 'No file selected'}), 400
             
-            if not file.filename.lower().endswith('.csv'):
-                print("⚠️ Invalid file type")
-                return jsonify({'error': 'Only CSV files are allowed'}), 400
+            # Validate CSV file
+            is_valid, filename, error_msg = validate_csv_file(file)
+            if not is_valid:
+                print(f"⚠️ File validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
-            print(f"📂 Processing file: {file.filename}")
+            print(f"📂 Processing file: {filename}")
             
             # Read CSV
             try:
+                file.seek(0)  # Reset file pointer after validation
                 df = pd.read_csv(file)
                 print(f"📊 CSV loaded: {len(df)} rows, {len(df.columns)} columns")
             except Exception as e:
                 print(f"❌ CSV read error: {str(e)}")
-                return jsonify({'error': f'Error reading CSV: {str(e)}'}), 400
+                return jsonify({'error': 'Error reading CSV file'}), 400
             
             # Validate data
             is_valid, error_msg = validate_csv_data(df)
@@ -147,9 +161,10 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ CSV upload error: {str(e)}")
-            return jsonify({'error': f'Upload failed: {str(e)}'}), 500
+            return jsonify({'error': 'Upload failed'}), 500
     
     @app.route('/api/training/start', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_TRAINING, window=60)
     def start_training():
         """Start model training with uploaded data."""
         start_time = time.time()
@@ -161,6 +176,13 @@ def register_training_routes(app):
                 return jsonify({'error': 'No training file uploaded'}), 400
             
             file = request.files['file']
+            
+            # Validate CSV file
+            is_valid, filename, error_msg = validate_csv_file(file)
+            if not is_valid:
+                print(f"⚠️ File validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
+            
             config_json = request.form.get('config', '{}')
             
             try:
@@ -177,16 +199,23 @@ def register_training_routes(app):
             if config['base_model'] not in FINETUNING_MODELS:
                 return jsonify({'error': 'Invalid base model'}), 400
             
+            # Validate training parameters
+            is_valid, validated_params, error_msg = validate_training_params(config)
+            if not is_valid:
+                print(f"⚠️ Training params validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
+            
             print(f"⚙️ Config: {config}")
             
             # Read and validate CSV
             try:
+                file.seek(0)  # Reset file pointer after validation
                 df = pd.read_csv(file)
                 is_valid, error_msg = validate_csv_data(df)
                 if not is_valid:
                     return jsonify({'error': error_msg}), 400
             except Exception as e:
-                return jsonify({'error': f'Error reading CSV: {str(e)}'}), 400
+                return jsonify({'error': 'Error reading CSV file'}), 400
             
             # Generate unique model code
             model_code = generate_model_code()
@@ -216,17 +245,20 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Training start error: {str(e)}")
-            return jsonify({'error': f'Failed to start training: {str(e)}'}), 500
+            return jsonify({'error': 'Failed to start training'}), 500
     
     @app.route('/api/training/status/<model_code>', methods=['GET'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def get_training_status(model_code):
         """Get training status for a specific model."""
         print(f"📊 Status check for model: {model_code}")
         
         try:
             # Validate model code format
-            if len(model_code) != 6 or not model_code.isalnum():
-                return jsonify({'error': 'Invalid model code format'}), 400
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"⚠️ Invalid model code: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             metadata = get_model_metadata(model_code)
             if not metadata:
@@ -246,9 +278,10 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Status check error for {model_code}: {str(e)}")
-            return jsonify({'error': f'Status check failed: {str(e)}'}), 500
+            return jsonify({'error': 'Status check failed'}), 500
     
     @app.route('/api/custom/predict/<model_code>', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_ANALYSIS, window=60)
     def predict_custom(model_code):
         """Make prediction using a custom trained model."""
         start_time = time.time()
@@ -256,8 +289,10 @@ def register_training_routes(app):
         
         try:
             # Validate model code
-            if len(model_code) != 6 or not model_code.isalnum():
-                return jsonify({'error': 'Invalid model code format'}), 400
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"⚠️ Invalid model code: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             # Check if model exists and is completed
             if not is_model_completed(model_code):
@@ -271,10 +306,13 @@ def register_training_routes(app):
             data = request.get_json()
             text = data.get('text', '').strip()
             
-            if not text:
-                return jsonify({'error': 'Text is required'}), 400
+            # Validate text input
+            is_valid, cleaned_text, error_msg = validate_text_input(text)
+            if not is_valid:
+                print(f"⚠️ Text validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
-            print(f"📝 Custom prediction - Text length: {len(text)}")
+            print(f"📝 Custom prediction - Text length: {len(cleaned_text)}")
             
             # Load custom model if not cached
             custom_key = f"custom_{model_code}"
@@ -287,7 +325,7 @@ def register_training_routes(app):
                 preload_model(custom_key, str(model_path), True)
             
             # Make prediction
-            results = hf_pretrained_classify(custom_key, text, LABEL_MAPPING)
+            results = hf_pretrained_classify(custom_key, cleaned_text, LABEL_MAPPING)
             prediction = results[0]
             
             # Get model metadata for response
@@ -296,7 +334,7 @@ def register_training_routes(app):
             response = {
                 'prediction': prediction['label'],
                 'confidence': prediction['score'],
-                'original_text': text,
+                'original_text': cleaned_text,
                 'model_code': model_code,
                 'model_name': metadata.get('name', f'Custom Model {model_code}') if metadata else f'Custom Model {model_code}',
                 'model_type': 'custom'
@@ -309,9 +347,10 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Custom prediction error for {model_code}: {str(e)}")
-            return jsonify({'error': f'Prediction failed: {str(e)}'}), 500
+            return jsonify({'error': 'Prediction failed'}), 500
     
     @app.route('/api/custom/explain/lime/<model_code>', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_ANALYSIS, window=60)
     def explain_lime_custom(model_code):
         """Generate LIME explanation for custom model."""
         start_time = time.time()
@@ -319,8 +358,10 @@ def register_training_routes(app):
         
         try:
             # Validate and check model
-            if len(model_code) != 6 or not model_code.isalnum():
-                return jsonify({'error': 'Invalid model code format'}), 400
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"⚠️ Invalid model code: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             if not is_model_completed(model_code) or is_model_expired(model_code):
                 return jsonify({'error': 'Model not available'}), 404
@@ -329,8 +370,11 @@ def register_training_routes(app):
             data = request.get_json()
             text = data.get('text', '').strip()
             
-            if not text:
-                return jsonify({'error': 'Text is required'}), 400
+            # Validate text input
+            is_valid, cleaned_text, error_msg = validate_text_input(text)
+            if not is_valid:
+                print(f"⚠️ Text validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             # Ensure model is loaded
             custom_key = f"custom_{model_code}"
@@ -339,7 +383,7 @@ def register_training_routes(app):
                 preload_model(custom_key, str(model_path), True)
             
             # Generate LIME explanation
-            lime_explanation = get_lime_explanation(custom_key, text, LABEL_MAPPING)
+            lime_explanation = get_lime_explanation(custom_key, cleaned_text, LABEL_MAPPING)
             
             metadata = get_model_metadata(model_code)
             
@@ -356,9 +400,10 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Custom LIME explanation error for {model_code}: {str(e)}")
-            return jsonify({'error': f'LIME explanation failed: {str(e)}'}), 500
+            return jsonify({'error': 'LIME explanation failed'}), 500
     
     @app.route('/api/custom/explain/shap/<model_code>', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_ANALYSIS, window=60)
     def explain_shap_custom(model_code):
         """Generate SHAP explanation for custom model."""
         start_time = time.time()
@@ -366,8 +411,10 @@ def register_training_routes(app):
         
         try:
             # Validate and check model
-            if len(model_code) != 6 or not model_code.isalnum():
-                return jsonify({'error': 'Invalid model code format'}), 400
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"⚠️ Invalid model code: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             if not is_model_completed(model_code) or is_model_expired(model_code):
                 return jsonify({'error': 'Model not available'}), 404
@@ -376,8 +423,11 @@ def register_training_routes(app):
             data = request.get_json()
             text = data.get('text', '').strip()
             
-            if not text:
-                return jsonify({'error': 'Text is required'}), 400
+            # Validate text input
+            is_valid, cleaned_text, error_msg = validate_text_input(text)
+            if not is_valid:
+                print(f"⚠️ Text validation failed: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             # Ensure model is loaded
             custom_key = f"custom_{model_code}"
@@ -386,7 +436,7 @@ def register_training_routes(app):
                 preload_model(custom_key, str(model_path), True)
             
             # Generate SHAP explanation
-            shap_explanation = get_shap_explanation(custom_key, text)
+            shap_explanation = get_shap_explanation(custom_key, cleaned_text)
             
             metadata = get_model_metadata(model_code)
             
@@ -403,15 +453,18 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Custom SHAP explanation error for {model_code}: {str(e)}")
-            return jsonify({'error': f'SHAP explanation failed: {str(e)}'}), 500
+            return jsonify({'error': 'SHAP explanation failed'}), 500
     
     @app.route('/api/custom/download/init/<model_code>', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def init_download(model_code):
         """Initialize a download and return a download ID for progress tracking."""
         try:
             # Validate model code
-            if len(model_code) != 6 or not model_code.isalnum():
-                return jsonify({'error': 'Invalid model code format'}), 400
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"⚠️ Invalid model code: {error_msg}")
+                return jsonify({'error': error_msg}), 400
             
             # Check if model exists and is completed
             if not is_model_completed(model_code):
@@ -442,6 +495,7 @@ def register_training_routes(app):
             return jsonify({'error': str(e)}), 500
     
     @app.route('/api/custom/download/<model_code>', methods=['GET'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def download_custom_model(model_code):
         """Download a trained custom model."""
         client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
@@ -482,11 +536,12 @@ def register_training_routes(app):
             })
             time.sleep(0.2)  # Small delay to allow frontend to see this phase
             
-            if len(model_code) != 6 or not model_code.isalnum():
-                print(f"❌ Invalid model code format: {model_code}")
+            is_valid, cleaned_code, error_msg = validate_model_code(model_code)
+            if not is_valid:
+                print(f"❌ Invalid model code: {error_msg}")
                 download_progress[download_id].update({
                     'status': 'failed',
-                    'error': 'Invalid model code format'
+                    'error': error_msg
                 })
                 return jsonify({
                     'error': 'Invalid model code format',
@@ -610,6 +665,7 @@ def register_training_routes(app):
             }), 500
     
     @app.route('/api/custom/download-progress/<download_id>', methods=['GET'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def get_download_progress(download_id):
         """Get progress of a download operation."""
         if download_id not in download_progress:
@@ -629,6 +685,7 @@ def register_training_routes(app):
         return jsonify(progress_data)
     
     @app.route('/api/training/cleanup', methods=['POST'])
+    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
     def manual_cleanup():
         """Manually trigger cleanup of expired models."""
         print("🧹 Manual cleanup triggered")
@@ -639,4 +696,4 @@ def register_training_routes(app):
             
         except Exception as e:
             print(f"❌ Cleanup error: {str(e)}")
-            return jsonify({'error': f'Cleanup failed: {str(e)}'}), 500
+            return jsonify({'error': 'Cleanup failed'}), 500

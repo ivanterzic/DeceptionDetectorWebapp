@@ -623,7 +623,7 @@ body.dark-mode {
 .dark-mode .form-select {
   background-color: #3d3d3d;
   border-color: #4d4d4d;
-  color: #e0e0e0;
+  color: #ffffff !important;
   border-radius: 10px;
 }
 
@@ -631,7 +631,7 @@ body.dark-mode {
 .dark-mode .form-select:focus {
   background-color: #3d3d3d;
   border-color: #FE483E;
-  color: #e0e0e0;
+  color: #ffffff !important;
   box-shadow: 0 0 0 0.2rem rgba(254, 72, 62, 0.25);
   border-radius: 10px;
 }

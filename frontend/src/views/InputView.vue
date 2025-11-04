@@ -79,4 +79,9 @@ export default {
 .dark-mode .input-view {
   background-color: transparent;
 }
+
+.dark-mode .card-header.bg-primary {
+  background-color: #252525 !important;
+  border-bottom: 1px solid #3d3d3d !important;
+}
 </style>

@@ -942,4 +942,42 @@ export default {
 .dark-mode .custom-model-view {
   background-color: transparent;
 }
+
+.dark-mode .card-header.bg-primary {
+  background-color: #252525 !important;
+  border-bottom: 1px solid #3d3d3d !important;
+}
+
+.dark-mode .model-code-input {
+  background: linear-gradient(145deg, #3d3d3d, #2d2d2d) !important;
+  border-color: #4d4d4d !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .model-code-input:focus {
+  background: linear-gradient(145deg, #3d3d3d, #2d2d2d) !important;
+  border-color: #FE483E !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .info-card {
+  background-color: #2d2d2d !important;
+  border-color: #3d3d3d !important;
+}
+
+.dark-mode .info-card h6 {
+  color: #b0b0b0 !important;
+}
+
+.dark-mode .info-card p {
+  color: #ffffff !important;
+}
+
+.dark-mode .card-title {
+  color: #ffffff;
+}
+
+.dark-mode .card-footer {
+  background-color: #2d2d2d !important;
+}
 </style>

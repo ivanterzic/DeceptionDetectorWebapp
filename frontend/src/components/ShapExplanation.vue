@@ -112,4 +112,29 @@ export default {
 .progress {
   border-radius: 6px;
 }
+
+/* Dark Mode Styles */
+.dark-mode .explanation-header h6 {
+  color: #ffffff;
+}
+
+.dark-mode .explanation-header p {
+  color: #b0b0b0 !important;
+}
+
+.dark-mode .feature-list h6 {
+  color: #ffffff;
+}
+
+.dark-mode .explanation-item {
+  border-bottom-color: #555555 !important;
+}
+
+.dark-mode .word-label {
+  color: #ffffff;
+}
+
+.dark-mode .text-muted {
+  color: #b0b0b0 !important;
+}
 </style>

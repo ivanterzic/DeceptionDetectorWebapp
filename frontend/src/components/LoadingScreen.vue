@@ -57,8 +57,25 @@ export default {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
+.dark-mode .loading-screen {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
 .card {
   border: none;
   border-radius: 15px;
+}
+
+.dark-mode .card {
+  background-color: #2d2d2d;
+  border-radius: 15px;
+}
+
+.dark-mode .card-body h4 {
+  color: #ffffff;
+}
+
+.dark-mode .card-body p {
+  color: #b0b0b0 !important;
 }
 </style>

@@ -199,4 +199,31 @@ export default {
     font-size: 1.1rem;
   }
 }
+
+/* Dark Mode Styles */
+.dark-mode .card {
+  background-color: #2d2d2d;
+  border-radius: 15px;
+}
+
+.dark-mode .card-body {
+  color: #ffffff;
+}
+
+.dark-mode .form-label {
+  color: #ffffff !important;
+}
+
+.dark-mode .form-text small {
+  color: #b0b0b0 !important;
+}
+
+.dark-mode .card-title {
+  color: #ffffff;
+}
+
+.dark-mode .card-text {
+  color: #b0b0b0 !important;
+}
+
 </style>

@@ -133,7 +133,34 @@ def preload_all_models():
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    
+    # CORS configuration - restrict to localhost in development
+    # For production, update ALLOWED_ORIGINS in config.py
+    from config import ALLOWED_ORIGINS
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ALLOWED_ORIGINS,
+            "methods": ["GET", "POST"],
+            "allow_headers": ["Content-Type"],
+            "max_age": 3600
+        }
+    })
+    
+    # Security headers
+    @app.after_request
+    def add_security_headers(response):
+        # Prevent clickjacking
+        response.headers['X-Frame-Options'] = 'DENY'
+        # Prevent MIME sniffing
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        # XSS protection (legacy but still useful)
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        # Referrer policy
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        # Content Security Policy
+        response.headers['Content-Security-Policy'] = "default-src 'self'"
+        return response
+    
     register_routes(app)    
     return app
 

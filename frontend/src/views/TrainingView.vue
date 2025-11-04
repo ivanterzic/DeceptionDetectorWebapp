@@ -829,4 +829,9 @@ export default {
 .dark-mode .requirements-panel h6 {
   color: #ffffff;
 }
+
+.dark-mode .card-header.bg-primary {
+  background-color: #252525 !important;
+  border-bottom: 1px solid #3d3d3d !important;
+}
 </style>

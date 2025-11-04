@@ -42,3 +42,17 @@ AVAILABLE_MODELS = get_available_models()
 API_HOST = '0.0.0.0'
 API_PORT = 5000
 DEBUG_MODE = True
+
+# CORS allowed origins - restrict to localhost for development
+# For production, change to your domain: ['https://yourdomain.com']
+ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:3000',  # Alternative dev port
+    'http://127.0.0.1:3000'
+]
+
+# Rate limiting settings (requests per minute)
+RATE_LIMIT_ANALYSIS = 20  # Text analysis endpoint
+RATE_LIMIT_TRAINING = 5   # Model training endpoint
+RATE_LIMIT_DEFAULT = 60   # Other endpoints

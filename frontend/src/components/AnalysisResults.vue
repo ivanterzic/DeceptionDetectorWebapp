@@ -363,4 +363,67 @@ export default {
 .nav-tabs .nav-link {
   border-radius: 6px 6px 0 0;
 }
+
+/* Dark Mode Styles */
+.dark-mode .analysis-results {
+  background: #1a1a1a;
+}
+
+.dark-mode .card {
+  background-color: #2d2d2d;
+  border-radius: 10px;
+}
+
+.dark-mode .card-body {
+  color: #ffffff;
+}
+
+.dark-mode .card-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .text-muted {
+  color: #b0b0b0 !important;
+}
+
+.dark-mode .text-display {
+  background-color: #3d3d3d !important;
+  color: #ffffff !important;
+  border-color: #555555 !important;
+}
+
+.dark-mode .confidence-text {
+  color: #ffffff;
+}
+
+.dark-mode .card-header {
+  background-color: #252525 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #3d3d3d !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.dark-mode .card-header.bg-primary {
+  background-color: #252525 !important;
+}
+
+.dark-mode .nav-tabs {
+  border-bottom-color: #555555;
+}
+
+.dark-mode .nav-tabs .nav-link {
+  color: #b0b0b0;
+  border-color: transparent;
+}
+
+.dark-mode .nav-tabs .nav-link:hover {
+  color: #ffffff;
+  border-color: #555555;
+}
+
+.dark-mode .nav-tabs .nav-link.active {
+  background-color: #3d3d3d;
+  color: #ffffff;
+  border-color: #555555 #555555 transparent;
+}
 </style>

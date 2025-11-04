@@ -161,6 +161,21 @@ Aplikacija ima tri glavna taba:
 ![Screenshot 1: Početni ekran aplikacije sa logom i navigacijom](./docs/screenshots/01-pocetni-ekran.png)
 *Prikaz glavnog ekrana: logo u gornjem lijevom kutu, tri navigacijska taba (Analysis, Fine-tuning, Model Access), aktivan Analysis tab označen crvenom bojom.*
 
+### 4.3 Tamni / svijetli način (Dark / Light mode)
+
+Aplikacija podržava tamni i svijetli način rada. U gornjem desnom kutu nalazi se ikona (sunce / mjesec) koja prebacuje temu.
+
+Kako koristiti:
+- Kliknite ikonu sunce/mjesec u navigaciji da uključite ili isključite tamni način.
+- Vaš odabir se sprema u preglednik i ostaje aktivan nakon osvježavanja stranice.
+- Ako nemate spremljenu preferenciju, aplikacija koristi postavke operativnog sustava (prefers-color-scheme).
+
+Savjet za provjeru (lokalno):
+- Otvorite aplikaciju na http://localhost:8080
+- Kliknite ikonu tamnog načina i promijenite temu
+- Ponovo učitajte stranicu – izbor bi trebao ostati aktivan
+
+
 ---
 
 ## 5. ANALIZA TEKSTA
