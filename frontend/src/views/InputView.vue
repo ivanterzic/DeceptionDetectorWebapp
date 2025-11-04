@@ -75,4 +75,8 @@ export default {
   background-color: #f8f9fa;
   min-height: calc(100vh - 100px);
 }
+
+.dark-mode .input-view {
+  background-color: transparent;
+}
 </style>

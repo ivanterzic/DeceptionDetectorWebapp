@@ -28,4 +28,8 @@ export default {
 .analysis-view {
   background-color: #f8f9fa;
 }
+
+.dark-mode .analysis-view {
+  background-color: transparent;
+}
 </style>

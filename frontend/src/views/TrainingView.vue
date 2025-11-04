@@ -77,7 +77,7 @@
               <!-- File Requirements -->
               <div class="col-md-6">
                 <div class="requirements-panel h-100 p-3 bg-light rounded">
-                  <h6 class="text-dark mb-3">
+                  <h6 class="mb-3">
                     <i class="fas fa-info-circle me-2 text-info"></i>
                     File Requirements
                   </h6>
@@ -807,5 +807,26 @@ export default {
 .training-view {
   background-color: #f8f9fa;
   min-height: calc(100vh - 100px);
+}
+
+.dark-mode .training-view {
+  background-color: transparent;
+}
+
+/* Dark mode overrides */
+.dark-mode .requirements-panel {
+  border-color: #3d3d3d;
+}
+
+.dark-mode .configuration-section {
+  border-color: #3d3d3d;
+}
+
+.dark-mode .form-label.fw-semibold {
+  color: #e0e0e0;
+}
+
+.dark-mode .requirements-panel h6 {
+  color: #ffffff;
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ 'dark-mode': isDarkMode }">
     <!-- Navigation Tabs -->
     <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="#">
-          <img src="/logo.svg" alt="Deception Detector" class="logo-img me-2">
+          <img :src="isDarkMode ? '/logo-dark.svg' : '/logo-light.svg'" alt="Deception Detector" class="logo-img me-2">
         </a>
         
         <!-- Tab Navigation -->
@@ -37,6 +37,17 @@
             >
               <i class="fas fa-code me-1"></i>
               Model Access
+            </button>
+          </li>
+          
+          <!-- Dark Mode Toggle -->
+          <li class="nav-item ms-3">
+            <button 
+              class="nav-link theme-toggle"
+              @click="toggleDarkMode"
+              title="Toggle dark mode"
+            >
+              <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
             </button>
           </li>
         </ul>
@@ -118,12 +129,14 @@ export default {
       analysisError: null,
       apiBaseUrl: config.apiBaseUrl,
       currentRequest: null,
-      pendingModelCode: null // Store model code to pass to custom view
+      pendingModelCode: null, // Store model code to pass to custom view
+      isDarkMode: false // Dark mode state
     }
   },
   // Lifecycle hook to load available models on mount
   mounted() {
     this.loadAvailableModels()
+    this.loadDarkModePreference()
   },
   methods: {
     // Tab management
@@ -208,6 +221,60 @@ export default {
     setCustomModelCode(modelCode) {
       // Store the model code to be used by CustomModelView
       this.pendingModelCode = modelCode
+    },
+
+    // Dark mode methods
+    toggleDarkMode() {
+      this.isDarkMode = !this.isDarkMode
+      // Persist preference
+      try {
+        localStorage.setItem('darkMode', this.isDarkMode.toString())
+      } catch (e) {
+        // ignore localStorage errors (e.g., private mode)
+      }
+
+      // Apply to both body and #app root to ensure styles apply
+      document.body.classList.toggle('dark-mode', this.isDarkMode)
+      const appEl = document.getElementById('app')
+      if (appEl) appEl.classList.toggle('dark-mode', this.isDarkMode)
+      
+      // Update favicon
+      this.updateFavicon()
+    },
+
+    loadDarkModePreference() {
+      // Load saved preference or fallback to OS preference
+      let savedPreference = null
+      try {
+        savedPreference = localStorage.getItem('darkMode')
+      } catch (e) {
+        savedPreference = null
+      }
+
+      if (savedPreference !== null) {
+        this.isDarkMode = savedPreference === 'true'
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        this.isDarkMode = true
+      } else {
+        this.isDarkMode = false
+      }
+
+      // Ensure classes reflect the preference on both body and #app root
+      document.body.classList.toggle('dark-mode', this.isDarkMode)
+      const appEl = document.getElementById('app')
+      if (appEl) appEl.classList.toggle('dark-mode', this.isDarkMode)
+      
+      // Update favicon
+      this.updateFavicon()
+    },
+    
+    updateFavicon() {
+      // Update favicon based on dark mode
+      const favicon = document.querySelector("link[rel*='icon']") || document.createElement('link')
+      favicon.type = 'image/png'
+      favicon.rel = 'icon'
+      favicon.href = this.isDarkMode ? '/favicon-light.png' : '/favicon-dark.png'
+      document.getElementsByTagName('head')[0].appendChild(favicon)
     }
   }
 }
@@ -441,5 +508,413 @@ a:hover {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* ========================================
+   DARK MODE STYLES
+   ======================================== */
+
+/* Dark Mode Root */
+#app.dark-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+body.dark-mode {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0;
+}
+
+.dark-mode * {
+  scrollbar-color: #5d5d5d #2d2d2d;
+}
+
+/* Dark Mode Typography */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: #ffffff;
+}
+
+.dark-mode p,
+.dark-mode span,
+.dark-mode label {
+  color: #e0e0e0;
+}
+
+/* Dark Mode Navbar */
+.dark-mode .navbar {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .nav-tabs-transparent .nav-link {
+  color: #e0e0e0;
+}
+
+.dark-mode .nav-tabs-transparent .nav-link:hover {
+  color: #FE483E;
+  background: rgba(254, 72, 62, 0.15);
+}
+
+.dark-mode .nav-tabs-transparent .nav-link.active {
+  color: white;
+  background: linear-gradient(135deg, #FE483E 0%, #FF6B63 100%);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: transparent !important;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0 !important;
+}
+
+.theme-toggle:hover {
+  border-color: #FE483E;
+  background: rgba(254, 72, 62, 0.1) !important;
+  transform: rotate(15deg);
+}
+
+.dark-mode .theme-toggle {
+  color: #ffd700;
+}
+
+.theme-toggle i {
+  font-size: 1.2rem;
+}
+
+/* Dark Mode Cards */
+.dark-mode .card {
+  background-color: #2d2d2d;
+  border: 1px solid #3d3d3d;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+}
+
+.dark-mode .card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .card-header {
+  background-color: #252525;
+  border-bottom: 1px solid #3d3d3d;
+  color: #ffffff;
+  border-radius: 15px 15px 0 0 !important;
+}
+
+.dark-mode .card-body {
+  background-color: #2d2d2d;
+  border-radius: 0 0 15px 15px;
+}
+
+/* Dark Mode Forms */
+.dark-mode .form-control,
+.dark-mode .form-select {
+  background-color: #3d3d3d;
+  border-color: #4d4d4d;
+  color: #e0e0e0;
+  border-radius: 10px;
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+  background-color: #3d3d3d;
+  border-color: #FE483E;
+  color: #e0e0e0;
+  box-shadow: 0 0 0 0.2rem rgba(254, 72, 62, 0.25);
+  border-radius: 10px;
+}
+
+.dark-mode .form-control::placeholder {
+  color: #888;
+}
+
+.dark-mode .form-control:disabled {
+  background-color: #2a2a2a;
+  color: #666;
+}
+
+/* Dark Mode Buttons */
+.dark-mode .btn-outline-secondary {
+  border-color: #4d4d4d;
+  color: #e0e0e0;
+}
+
+.dark-mode .btn-outline-secondary:hover {
+  background-color: #4d4d4d;
+  border-color: #5d5d5d;
+  color: #ffffff;
+}
+
+.dark-mode .btn-secondary {
+  background-color: #4d4d4d;
+  border-color: #4d4d4d;
+}
+
+.dark-mode .btn-secondary:hover {
+  background-color: #5d5d5d;
+  border-color: #6d6d6d;
+}
+
+/* Dark Mode Alerts */
+.dark-mode .alert {
+  background-color: #2d2d2d;
+  border-color: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.dark-mode .alert-danger {
+  background-color: #3d2222;
+  border-color: #5d3333;
+  color: #ff8080;
+}
+
+.dark-mode .alert-success {
+  background-color: #223d22;
+  border-color: #335d33;
+  color: #80ff80;
+}
+
+.dark-mode .alert-info {
+  background-color: #22333d;
+  border-color: #33505d;
+  color: #80c0ff;
+}
+
+.dark-mode .alert-warning {
+  background-color: #3d3522;
+  border-color: #5d5033;
+  color: #ffd080;
+}
+
+/* Dark Mode Badges */
+.dark-mode .badge {
+  background-color: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.dark-mode .badge-success {
+  background-color: #2d5d2d;
+}
+
+.dark-mode .badge-danger {
+  background-color: #5d2d2d;
+}
+
+/* Dark Mode Tables */
+.dark-mode table {
+  color: #e0e0e0;
+}
+
+.dark-mode .table {
+  border-color: #3d3d3d;
+}
+
+.dark-mode .table thead th {
+  background-color: #252525;
+  border-color: #3d3d3d;
+  color: #ffffff;
+}
+
+.dark-mode .table tbody td {
+  border-color: #3d3d3d;
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #2a2a2a;
+}
+
+/* Dark Mode Modal */
+.dark-mode .modal-content {
+  background-color: #2d2d2d;
+  border: 1px solid #3d3d3d;
+}
+
+.dark-mode .modal-header {
+  background-color: #252525;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.dark-mode .modal-footer {
+  background-color: #252525;
+  border-top: 1px solid #3d3d3d;
+}
+
+.dark-mode .modal-title {
+  color: #ffffff;
+}
+
+.dark-mode .btn-close {
+  filter: invert(1);
+}
+
+/* Dark Mode Progress Bars */
+.dark-mode .progress {
+  background-color: #3d3d3d;
+}
+
+/* Dark Mode Scrollbar */
+.dark-mode ::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: #5d5d5d;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #6d6d6d;
+}
+
+/* Dark Mode Links */
+.dark-mode a {
+  color: #FF6B63;
+}
+
+.dark-mode a:hover {
+  color: #FE483E;
+}
+
+/* Dark Mode Text Colors */
+.dark-mode .text-muted {
+  color: #999 !important;
+}
+
+.dark-mode .text-secondary {
+  color: #aaa !important;
+}
+
+/* Dark Mode Borders */
+.dark-mode .border {
+  border-color: #3d3d3d !important;
+}
+
+.dark-mode hr {
+  border-color: #3d3d3d;
+  opacity: 1;
+}
+
+/* Dark Mode List Groups */
+.dark-mode .list-group-item {
+  background-color: #2d2d2d;
+  border-color: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.dark-mode .list-group-item:hover {
+  background-color: #3d3d3d;
+}
+
+/* Dark Mode Dropdowns */
+.dark-mode .dropdown-menu {
+  background-color: #2d2d2d;
+  border-color: #3d3d3d;
+}
+
+.dark-mode .dropdown-item {
+  color: #e0e0e0;
+}
+
+.dark-mode .dropdown-item:hover {
+  background-color: #3d3d3d;
+  color: #ffffff;
+}
+
+/* Dark Mode Utility Classes */
+.dark-mode .bg-light {
+  background-color: #2d2d2d !important;
+}
+
+.dark-mode .bg-white {
+  background-color: #252525 !important;
+}
+
+.dark-mode .bg-light-success {
+  background-color: rgba(40, 167, 69, 0.15) !important;
+}
+
+.dark-mode .bg-light-danger {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+}
+
+.dark-mode .requirements-panel {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-radius: inherit;
+}
+
+.dark-mode .configuration-section {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-radius: inherit;
+}
+
+.dark-mode .info-card {
+  background-color: #2d2d2d !important;
+  border-color: #3d3d3d !important;
+  color: #e0e0e0 !important;
+  border-radius: inherit;
+}
+
+.dark-mode .upload-area {
+  background-color: #252525 !important;
+  color: #e0e0e0 !important;
+  border-radius: 12px !important;
+}
+
+.dark-mode .upload-area.border-success.bg-light-success {
+  background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.dark-mode .upload-area.border-danger.bg-light-danger {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.dark-mode .tab-content {
+  background-color: transparent !important;
+}
+
+.dark-mode .container {
+  background-color: transparent !important;
+}
+
+/* Preserve rounded corners in dark mode */
+.dark-mode .rounded {
+  border-radius: 0.375rem !important;
+}
+
+.dark-mode .rounded-3 {
+  border-radius: 0.5rem !important;
+}
+
+.dark-mode .alert {
+  border-radius: 10px;
+}
+
+.dark-mode .text-display {
+  border-radius: 10px;
+}
+
+/* Smooth Transitions for Mode Switch */
+#app,
+.navbar,
+.card,
+.form-control,
+.form-select,
+.btn,
+.modal-content,
+.table {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 </style>

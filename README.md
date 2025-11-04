@@ -435,8 +435,6 @@ text,label
 
 ## 🎨 Color Scheme
 
-The application uses the DDetection brand colors:
-
 - **Primary Red**: `#FE483E` - Buttons, accents, active states
 - **Dark Navy**: `#213544` - Text, headings, navbar
 - **Light Background**: `#f8f9fa` - Page background
