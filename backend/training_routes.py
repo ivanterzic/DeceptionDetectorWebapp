@@ -665,7 +665,7 @@ def register_training_routes(app):
             }), 500
     
     @app.route('/api/custom/download-progress/<download_id>', methods=['GET'])
-    @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)
+    @rate_limit(limit=120, window=60)  # Higher limit for progress polling (2 requests/sec)
     def get_download_progress(download_id):
         """Get progress of a download operation."""
         if download_id not in download_progress:

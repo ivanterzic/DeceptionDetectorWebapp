@@ -8,6 +8,14 @@ AI-powered web application for detecting deception in text using state-of-the-ar
 
 ## ✨ Features
 
+### 🌐 Public API
+- **JWT Authentication**: Secure username/password authentication with client-side SHA256 hashing
+- **Programmatic Access**: Integrate deception detection into your applications
+- **Single Endpoint**: `checkDeception(text, modelName)` returns prediction + SHAP + LIME explanations
+- **Rate Limited**: 20 requests/minute for reliable service
+- **Secure by Design**: No credentials stored in code - environment variables required
+- **Complete Guide**: See `API_USAGE.md` for full documentation
+
 ### 🔍 Text Analysis
 - **Deception Detection**: Analyze text to determine if it's deceptive or truthful
 - **Confidence Scores**: Get probability scores for each prediction
@@ -129,6 +137,20 @@ npm run serve
 ```
 
 Then open http://localhost:8080 in your browser.
+
+#### Public API Setup (Optional)
+
+To enable the public API, you must configure credentials via environment variables:
+
+```bash
+# Generate secure credentials
+python generate_secrets.py
+
+# Follow the prompts to set environment variables
+# Then restart the backend
+```
+
+**⚠️ Important:** API credentials are NOT stored in code for security. See `API_USAGE.md` for details.
 
 ---
 
@@ -373,7 +395,60 @@ npm install
 
 ## 🔌 API Reference
 
-### Pre-trained Models
+### 🌐 Public API (JWT Protected)
+
+**Full documentation:** See `API_USAGE.md`
+
+#### Authentication
+```bash
+POST /api/auth/token
+Body: {"username": "externalapiuser", "password_hash": "<sha256_hash>"}
+Response: {"token": "...", "expires_in": 3600}
+
+Note: Password must be hashed with SHA256 client-side before sending
+```
+
+#### Check Deception
+```bash
+POST /api/public/checkDeception
+Headers: Authorization: Bearer <token>
+Body: {"text": "...", "modelName": "bert-combined-1"}
+```
+
+**Response:**
+```json
+{
+  "is_deceptive": true,
+  "confidence": 0.95,
+  "shap_words": [["word1", 0.5], ["word2", -0.3]],
+  "lime_words": [["word1", 0.6], ["word2", -0.2]],
+  "model_used": "bert-combined-1"
+}
+```
+
+**Test the API:** See `API_USAGE.md` for testing instructions
+
+**Python Example:**
+```python
+import requests
+import hashlib
+
+# Hash password (SHA256)
+password_hash = hashlib.sha256("your_password".encode()).hexdigest()
+
+# Get token
+auth = requests.post("http://localhost:5000/api/auth/token",
+    json={"username": "externalapiuser", "password_hash": password_hash})
+token = auth.json()["token"]
+
+# Check deception
+response = requests.post("http://localhost:5000/api/public/checkDeception",
+    headers={"Authorization": f"Bearer {token}"},
+    json={"text": "Your text", "modelName": "bert-combined-1"})
+print(response.json())
+```
+
+### Pre-trained Models (Internal Web App)
 
 **GET** `/api/models` - List available models
 
@@ -385,9 +460,9 @@ npm install
 }
 ```
 
-**POST** `/api/lime` - Get LIME explanation
+**POST** `/api/explain/lime` - Get LIME explanation
 
-**POST** `/api/shap` - Get SHAP explanation
+**POST** `/api/explain/shap` - Get SHAP explanation
 
 ### Custom Training
 

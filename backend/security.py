@@ -7,6 +7,10 @@ from flask import request, jsonify
 import time
 from collections import defaultdict
 from threading import Lock
+import jwt
+import datetime
+import hashlib
+from config import JWT_SECRET, JWT_ALGORITHM, JWT_EXP_SECONDS, API_USERNAME, API_PASSWORD
 
 # Constants
 MAX_TEXT_LENGTH = 1300
@@ -249,11 +253,11 @@ def validate_training_params(params):
     except (ValueError, TypeError):
         return False, None, "Batch size must be a valid integer"
     
-    # Learning rate (1e-5 to 5e-5)
+    # Learning rate (1e-6 to 1e-2 - wide range for flexibility)
     try:
         learning_rate = float(params.get('learning_rate', 2e-5))
-        if learning_rate < 1e-5 or learning_rate > 5e-5:
-            return False, None, "Learning rate must be between 1e-5 and 5e-5"
+        if learning_rate < 1e-6 or learning_rate > 1e-2:
+            return False, None, "Learning rate must be between 1e-6 (0.000001) and 1e-2 (0.01)"
         validated['learning_rate'] = learning_rate
     except (ValueError, TypeError):
         return False, None, "Learning rate must be a valid number"
@@ -295,3 +299,91 @@ def secure_filename(filename):
         filename = name[:250] + ('.' + ext if ext else '')
     
     return filename or 'unnamed'
+
+
+# ---------------------- JWT helpers ----------------------
+def create_jwt_token(subject: str = 'public_api', expires_in: int = None):
+    """Create a JWT token for the subject.
+
+    Returns a compact JWT string.
+    """
+    expires_in = expires_in or JWT_EXP_SECONDS
+    now = datetime.datetime.utcnow()
+    payload = {
+        'sub': subject,
+        'iat': now,
+        'exp': now + datetime.timedelta(seconds=expires_in)
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    # PyJWT >=2 returns str, <=1 returns bytes
+    if isinstance(token, bytes):
+        token = token.decode('utf-8')
+    return token
+
+
+def verify_jwt_token(token: str):
+    """Verify JWT token and return (is_valid, payload, error_message)"""
+    if not token or not isinstance(token, str):
+        return False, None, 'Missing token'
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return True, payload, None
+    except jwt.ExpiredSignatureError:
+        return False, None, 'Token expired'
+    except jwt.InvalidTokenError as e:
+        return False, None, f'Invalid token: {str(e)}'
+
+
+def jwt_required(f):
+    """Decorator to require JWT in Authorization header (Bearer)."""
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        auth = request.headers.get('Authorization', '')
+        if not auth.startswith('Bearer '):
+            return jsonify({'error': 'Missing or malformed Authorization header'}), 401
+        token = auth.split(' ', 1)[1].strip()
+        is_valid, payload, err = verify_jwt_token(token)
+        if not is_valid:
+            return jsonify({'error': err}), 401
+        # Attach payload to request context for downstream handlers if needed
+        request.jwt_payload = payload
+        return f(*args, **kwargs)
+    return wrapped
+
+
+def hash_password(password: str) -> str:
+    """Hash password using SHA256."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def authenticate_user(username: str, password_hash: str):
+    """Authenticate user with username and pre-hashed password.
+    
+    Client must send password already hashed with SHA256.
+    
+    Args:
+        username: Username string
+        password_hash: SHA256 hash of password (hexdigest)
+    
+    Returns:
+        tuple: (is_valid, token_or_error)
+    """
+    if not username or not isinstance(username, str):
+        return False, 'Username required'
+    if not password_hash or not isinstance(password_hash, str):
+        return False, 'Password hash required'
+    
+    # Validate credentials are configured
+    if not API_USERNAME or not API_PASSWORD:
+        return False, 'API credentials not configured on server'
+    
+    # Compute expected hash from stored plain password
+    expected_hash = hashlib.sha256(API_PASSWORD.encode()).hexdigest()
+    
+    # Check username and password hash match
+    if username != API_USERNAME or password_hash.lower() != expected_hash.lower():
+        return False, 'Invalid credentials'
+    
+    # Create token with username as subject
+    token = create_jwt_token(subject=username)
+    return True, token

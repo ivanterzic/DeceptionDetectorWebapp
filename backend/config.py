@@ -1,6 +1,11 @@
 import torch
 from pathlib import Path
 from gpu_utils import get_torch_device
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Get optimal device using gpu_utils
 DEVICE = get_torch_device()
@@ -56,3 +61,23 @@ ALLOWED_ORIGINS = [
 RATE_LIMIT_ANALYSIS = 20  # Text analysis endpoint
 RATE_LIMIT_TRAINING = 5   # Model training endpoint
 RATE_LIMIT_DEFAULT = 60   # Other endpoints
+
+# JWT / Public API settings (development defaults; override with env vars)
+JWT_SECRET = os.environ.get('JWT_SECRET', 'dev_jwt_secret_change_me')
+JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM', 'HS256')
+JWT_EXP_SECONDS = int(os.environ.get('JWT_EXP_SECONDS', 3600))
+
+# API user credentials
+# REQUIRED: Must be set via environment variables - no defaults for security
+# Password is stored in plain text here, but client must hash it before sending
+API_USERNAME = os.environ.get('API_USERNAME')
+API_PASSWORD = os.environ.get('API_PASSWORD')  # Plain text password (for comparison)
+
+# Validate credentials are configured
+if not API_USERNAME or not API_PASSWORD:
+    import warnings
+    warnings.warn(
+        "⚠️  API_USERNAME and API_PASSWORD environment variables not set!\n"
+        "   Public API will not work. Set them in backend/.env file",
+        RuntimeWarning
+    )

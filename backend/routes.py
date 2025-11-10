@@ -10,7 +10,9 @@ from training_routes import register_training_routes
 from security import (
     validate_text_input, 
     validate_model_key, 
-    rate_limit
+    rate_limit,
+    jwt_required,
+    authenticate_user
 )
 
 def check_text_length(text, model_key, max_tokens=512):
@@ -48,6 +50,121 @@ def register_routes(app):
     
     # Register training routes
     register_training_routes(app)
+
+    # ===================== PUBLIC API - JWT Auth =====================
+
+    @app.route('/api/auth/token', methods=['POST'])
+    @rate_limit(limit=10, window=60)
+    def get_jwt_token():
+        """Issue a JWT token for the public API.
+        
+        Client must send password pre-hashed with SHA256.
+        
+        Request body: { 
+            "username": "externalapiuser", 
+            "password_hash": "sha256_hash_of_password" 
+        }
+        Response: { "token": "<jwt>", "expires_in": 3600 } or error
+        """
+        try:
+            data = request.get_json()
+            if not data:
+                return jsonify({'error': 'No data provided'}), 400
+            
+            username = data.get('username', '').strip()
+            password_hash = data.get('password_hash', '').strip()
+            
+            is_valid, token_or_err = authenticate_user(username, password_hash)
+            if not is_valid:
+                return jsonify({'error': token_or_err}), 401
+            
+            return jsonify({'token': token_or_err, 'expires_in': 3600}), 200
+        except Exception as e:
+            print(f"❌ Token issuance error: {str(e)}")
+            return jsonify({'error': 'Token issuance failed'}), 500
+
+    @app.route('/api/public/checkDeception', methods=['POST'])
+    @jwt_required
+    @rate_limit(limit=RATE_LIMIT_ANALYSIS, window=60)
+    def check_deception():
+        """Public API endpoint to check deception with explanations.
+        
+        Requires JWT in Authorization header: "Bearer <token>"
+        
+        Request body (JSON):
+          {
+            "text": "<text_to_analyze>",
+            "modelName": "<model_key>",
+            "params": { ... optional extra params ... }
+          }
+        
+        Response (JSON):
+          {
+            "is_deceptive": true/false,
+            "confidence": 0.95,
+            "shap_words": [["word1", 0.5], ["word2", -0.3], ...],
+            "lime_words": [["word1", 0.6], ["word2", -0.2], ...],
+            "model_used": "<model_key>"
+          }
+        """
+        start_time = time.time()
+        try:
+            data = request.get_json()
+            if not data:
+                return jsonify({'error': 'No data provided'}), 400
+            
+            text = data.get('text', '').strip()
+            model_key = data.get('modelName', '').strip()
+            # params = data.get('params', {})  # For future extensibility
+            
+            # Validate text
+            is_valid, cleaned_text, error_msg = validate_text_input(text)
+            if not is_valid:
+                print(f"⚠️ checkDeception - Invalid text: {error_msg}")
+                return jsonify({'error': error_msg}), 400
+            
+            # Validate model
+            is_valid, error_msg = validate_model_key(model_key, AVAILABLE_MODELS)
+            if not is_valid:
+                print(f"⚠️ checkDeception - Invalid model key: {error_msg}")
+                return jsonify({'error': error_msg}), 400
+            
+            print(f"🔐 checkDeception request - Model: {model_key}, Text length: {len(cleaned_text)}")
+            
+            # Token length check
+            is_valid, token_count, error_msg = check_text_length(cleaned_text, model_key)
+            if not is_valid:
+                print(f"⚠️ checkDeception - Text too long: {error_msg}")
+                return jsonify({'error': error_msg}), 400
+            
+            # Run prediction
+            results = hf_pretrained_classify(model_key, cleaned_text, LABEL_MAPPING)
+            prediction = results[0]
+            
+            # Run SHAP explanation
+            shap_explanation = get_shap_explanation(model_key, cleaned_text)
+            
+            # Run LIME explanation
+            lime_explanation = get_lime_explanation(model_key, cleaned_text, LABEL_MAPPING)
+            
+            # Build response
+            is_deceptive = (prediction['label'].lower() == 'deceptive')
+            response = {
+                'is_deceptive': is_deceptive,
+                'confidence': prediction['score'],
+                'shap_words': shap_explanation,
+                'lime_words': lime_explanation,
+                'model_used': model_key
+            }
+            
+            end_time = time.time()
+            print(f"✅ checkDeception completed in {end_time - start_time:.3f}s - Model: {model_key}, Result: {prediction['label']}, Confidence: {prediction['score']:.3f}")
+            
+            return jsonify(response), 200
+            
+        except Exception as e:
+            print(f"❌ checkDeception error: {str(e)}")
+            return jsonify({'error': 'Check deception failed'}), 500
     
     @app.route('/api/models', methods=['GET'])
     @rate_limit(limit=RATE_LIMIT_DEFAULT, window=60)

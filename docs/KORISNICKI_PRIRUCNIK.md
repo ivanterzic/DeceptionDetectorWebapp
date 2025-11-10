@@ -1,7 +1,7 @@
 # KORISNIČKI PRIRUČNIK - DECEPTION DETECTOR
 
-**Verzija:** 1.0  
-**Datum:** 2025-11-04
+**Verzija:** 1.1  
+**Datum:** 2025-11-10
 
 ---
 
@@ -24,28 +24,20 @@
 
 ### 1.1 Svrha priručnika
 
-Ovaj priručnik pruža upute za korištenje **Deception Detector** aplikacije - alata za analizu vjerodostojnosti tekstualnog sadržaja. Priručnik je namijenjen krajnjim korisnicima bez potrebe za tehničkim znanjem.
-
-### 1.2 Za kogo je ovaj priručnik?
-
-- 📰 Novinari i fact-checkeri
-- 🎓 Istraživači i studenti
-- 👥 Bilo tko tko želi provjeriti vjerodostojnost tekstualnog sadržaja
-
----
+Ovaj priručnik pruža upute za korištenje **Deception Detector** aplikacije - alata za analizu vjerodostojnosti tekstualnog sadržaja. Priručnik je namijenjen krajnjim korisnicima.
 
 ## 2. ŠTO JE DECEPTION DETECTOR?
 
 ### 2.1 Opis
 
-**Deception Detector** je web aplikacija koja koristi umjetnu inteligenciju za analizu teksta i detekciju potencijalno obmanjujućeg ili nevjerodostojnog sadržaja.
+**Deception Detector** je web aplikacija koja koristi moderne alate i modele umjetne inteligencije za analizu teksta i detekciju potencijalno obmanjujućeg ili nevjerodostojnog sadržaja.
 
 ### 2.2 Glavne mogućnosti
 
 ✅ **Analiza teksta** - Analizirajte bilo koji tekst do 1300 znakova  
 ✅ **Više modela** - Odaberite između 6 pretreniranih modela  
 ✅ **Vlastiti modeli** - Trenirajte modele na vlastitim podatcima  
-✅ **Vizualna objašnjenja** - Razumijte zašto je tekst označen kao vjerodostojan ili obmanjujući  
+✅ **Objašnjenja odluke** - Razumijte zašto je tekst označen kao vjerodostojan ili obmanjujući  
 ✅ **Jednostavno dijeljenje** - Dijelite vlastite modele pomoću 6-znamenkastog koda
 
 ### 2.3 Dostupni modeli
@@ -56,8 +48,8 @@ Ovaj priručnik pruža upute za korištenje **Deception Detector** aplikacije - 
 | **BERT COVID-19** | COVID-19 vijesti | Tekstove o zdravstvu i pandemiji |
 | **BERT Combined** | Općenito | Različite teme |
 | **DeBERTa Climate Change** | Klimatske promjene | Napredna analiza klime |
-| **DeBERTa COVID-19** | COVID-19 vijesti | Napredna zdravstvena analiza |
-| **DeBERTa Combined** | Općenito | Različite teme (bolji od BERT) |
+| **DeBERTa COVID-19** | COVID-19 vijesti | Tekstove o zdravstvu i pandemiji |
+| **DeBERTa Combined** | Općenito | Različite teme |
 
 ---
 
@@ -65,77 +57,49 @@ Ovaj priručnik pruža upute za korištenje **Deception Detector** aplikacije - 
 
 ### 3.1 Preduvjeti
 
-Potrebno je instalirati:
 - Python 3.8 ili noviji
 - Node.js 14 ili noviji
 - Minimalno 8 GB RAM-a
 - ~10 GB slobodnog prostora na disku
 
-### 3.2 Korak-po-korak instalacija (Windows)
+### 3.2 Brza instalacija (Windows)
 
-**1. Preuzmite projekt:**
 ```powershell
-git clone https://github.com/yourusername/deception-detector.git
-cd deception-detector\webapp
-```
-
-**2. Pokrenite setup skriptu:**
-```powershell
+# 1. Setup sve dependencies
 .\setup.bat
-```
 
-**3. Preuzmite AI modele:**
-```powershell
+# 2. Preuzmi AI modele
 .\download-models.bat
-```
 
-**4. Pokrenite aplikaciju:**
-```powershell
-# Prvi terminal - Backend
+# 3. Pokreni backend (Terminal 1)
 .\start-backend.bat
 
-# Drugi terminal - Frontend
+# 4. Pokreni frontend (Terminal 2)
 .\start-frontend.bat
-```
 
-**5. Otvorite preglednik:**
-```
-http://localhost:8080
+# 5. Otvori preglednik
+# http://localhost:8080
 ```
 
 ### 3.3 Instalacija (Linux/macOS)
 
-**1. Preuzmite i postavite projekt:**
 ```bash
-git clone https://github.com/yourusername/deception-detector.git
-cd deception-detector/webapp
-
-# Backend setup
+# 1. Backend setup
 python3 -m venv venv
 source venv/bin/activate
 cd backend
 pip install -r requirements.txt
 
-# Preuzmite modele
+# 2. Preuzmi modele
 python3 ../download_models.py
-```
 
-**2. Frontend setup:**
-```bash
+# 3. Frontend setup
 cd ../frontend
 npm install
-```
 
-**3. Pokrenite aplikaciju:**
-```bash
-# Terminal 1: Backend
-cd backend
-source ../venv/bin/activate
-python app.py
-
-# Terminal 2: Frontend
-cd frontend
-npm run serve
+# 4. Pokreni aplikaciju (2 terminala)
+# Terminal 1: cd backend && python app.py
+# Terminal 2: cd frontend && npm run serve
 ```
 
 ---
@@ -152,13 +116,13 @@ Aplikacija ima tri glavna taba:
 
 ### 4.2 Prvi koraci
 
-1. Otvorite aplikaciju u pregledniku (`http://localhost:8080`)
+1. Otvorite aplikaciju u pregledniku (`http://localhost:8080 ako je lokalno podignuto`)
 2. Kliknite na **Analysis** tab (već je odabran po defaultu)
 3. Unesite tekst koji želite analizirati
 4. Odaberite model
 5. Kliknite **Analyze Text**
 
-![Screenshot 1: Početni ekran aplikacije sa logom i navigacijom](./docs/screenshots/01-pocetni-ekran.png)
+![Screenshot 1: Početni ekran aplikacije sa logom i navigacijom](./screenshots/01-pocetni-ekran.png)
 *Prikaz glavnog ekrana: logo u gornjem lijevom kutu, tri navigacijska taba (Analysis, Fine-tuning, Model Access), aktivan Analysis tab označen crvenom bojom.*
 
 ### 4.3 Tamni / svijetli način (Dark / Light mode)
@@ -182,17 +146,12 @@ Savjet za provjeru (lokalno):
 
 ### 5.1 Unos teksta za analizu
 
-**Način 1: Ručni unos**
 1. Kliknite u polje za unos teksta
 2. Upišite ili zalijepite tekst (do 1300 znakova)
 3. Pratite brojač znakova u donjem desnom kutu
 
-**Način 2: Kopiraj-Zalijepi**
-1. Kopirajte tekst iz drugog izvora (Ctrl+C)
-2. Zalijepite u polje (Ctrl+V)
-
-![Screenshot 2: Unos teksta u textarea polje](./docs/screenshots/02-unos-teksta.png)
-*Prikaz tekstualnog polja sa djelomično unesenim tekstom. Vidljiv brojač znakova (npr. "287 / 1300"), dropdown za odabir modela, i omogućen "Analyze Text" gumb.*
+![Screenshot 2: Unos teksta u textarea polje](./screenshots/02-unos-teksta.png)
+*Prikaz tekstualnog polja sa djelomično unesenim tekstom. Vidljiv brojač znakova (npr. "275/1300"), dropdown za odabir modela, i omogućen "Analyze Text" gumb.*
 
 ### 5.2 Odabir modela
 
@@ -202,7 +161,8 @@ Iz padajućeg izbornika odaberite model:
 - Za tekstove o COVID-19 → **BERT/DeBERTa COVID-19**
 - Za ostale teme → **BERT/DeBERTa Combined**
 
-**Savjet:** DeBERTa modeli su točniji, ali sporiji od BERT modela.
+![Screenshot: Odabir modela iz dropdown menija](./screenshots/02b-odabir-modela.png)
+*Prikaz dropdown menija sa svim dostupnim modelima: BERT Climate Change, BERT COVID-19, BERT Combined, DeBERTa Climate Change, DeBERTa COVID-19, DeBERTa Combined.*
 
 ### 5.3 Analiza i rezultati
 
@@ -214,11 +174,7 @@ Iz padajućeg izbornika odaberite model:
 **Tumačenje rezultata:**
 
 ```
-┌─────────────────────────────────────┐
-│  PREDICTION                         │
-│  ◉ Truthful                   87.3% │  ← Vjerodostojan (87.3% sigurnosti)
-│  ○ Deceptive                  12.7% │  ← Obmanjujući (12.7% vjerojatnosti)
-└─────────────────────────────────────┘
+Predikcija može biti "Truthful" (vjerodostojan) ili "Deceptive" (obmanjujući). Model također prikazuje "Confidence" - postotak sigurnosti u svoju odluku
 ```
 
 **Što znače postoci?**
@@ -234,10 +190,9 @@ Iz padajućeg izbornika odaberite model:
 
 **Primjer 1: Vjerodostojan tekst**
 ```
-Tekst: "Climate change is supported by overwhelming scientific 
-evidence from multiple independent research institutions."
+Tekst: "Covid has impacted my life by taking away easy access to food. I did gain a few new experiences from it by having to wear a mask outside and standing further away from people than usual. It is a challenge to get the food I want and need sometimes due to shortages and delays."
 
-Rezultat: ✅ Truthful (92.4%)
+Rezultat: ✅ Truthful (86.1%)
 ```
 
 **Primjer 2: Obmanjujući tekst**
@@ -245,14 +200,14 @@ Rezultat: ✅ Truthful (92.4%)
 Tekst: "Climate change is a hoax invented by scientists to 
 get research funding."
 
-Rezultat: ⚠️ Deceptive (88.7%)
+Rezultat: ⚠️ Deceptive (85.0%)
 ```
 
-![Screenshot 3: Rezultati analize - Truthful tekst](./docs/screenshots/03-rezultat-truthful.png)
-*Rezultat za vjerodostojan tekst: zeleni ◉ Truthful 92.4%, sivi ○ Deceptive 7.6%. Prikazan originalni tekst i LIME/SHAP objašnjenja.*
+![Screenshot 3: Rezultati analize - Truthful tekst](./screenshots/03-rezultat-truthful.png)
+*Rezultat za vjerodostojan tekst: zeleni ◉ Truthful 86.1%. Prikazan originalni tekst i LIME/SHAP objašnjenja.*
 
-![Screenshot 4: Rezultati analize - Deceptive tekst](./docs/screenshots/04-rezultat-deceptive.png)
-*Rezultat za obmanjujući tekst: crveni ◉ Deceptive 88.7%, sivi ○ Truthful 11.3%.*
+![Screenshot 4: Rezultati analize - Deceptive tekst](./screenshots/04-rezultat-deceptive.png)
+*Rezultat za obmanjujući tekst: crveni ◉ Deceptive 85.0%*
 
 ---
 
@@ -278,13 +233,13 @@ text,label
 **Pravila:**
 - ✅ CSV format s dvije kolone: `text` i `label`
 - ✅ Minimalno 100 primjera (preporučeno 500+)
-- ✅ Balansirana distribucija (~50% truthful, ~50% deceptive)
+- ✅ Balansirana distribucija poželjna i preporučena (~50% truthful, ~50% deceptive)
 - ✅ Maksimalna veličina datoteke: 100 MB
 - ❌ Prazni redovi nisu dozvoljeni
 - ❌ Tekst ne smije biti duži od 1300 znakova
 
 ![Screenshot 5: CSV upload zona](./docs/screenshots/05-csv-upload.png)
-*Drag & drop zona sa "Browse files" gumbom. Prikazan primjer validiranog CSV-a: ✓ Valid CSV format, 1,000 rows, distribucija 48% deceptive / 52% truthful.*
+*Drag & drop zona sa "Browse files" gumbom.
 
 ### 6.3 Upload CSV datoteke
 
@@ -295,24 +250,25 @@ text,label
 - Povucite CSV datoteku u drag & drop zonu
 
 **Korak 3: Validacija**
-Aplikacija će automatski provjeriti datoteku i prikazati:
-```
-✓ Valid CSV format
-📊 1,000 rows detected
-📈 Distribution: 48% deceptive, 52% truthful
-📝 Sample texts shown below
-```
+Aplikacija će automatski provjeriti datoteku i prikazati informacije o podacima:
+- Broj primjera
+- Stupce
+- Raspodjelu labela
 
-![Screenshot: Upload i validacija] (TODO)
+![Screenshot 6: Validacija podataka nakon upload-a](./docs/screenshots/06-data-validation.png)
+*Prikaz validacije podataka: Broj primjera: 236, Stupci: text, label, Raspodjela: Truthful: 118 (50%), Deceptive: 118 (50%).*
 
 ### 6.4 Konfiguracija treniranja
 
 **Odabir base modela:**
-- **bert-base-uncased** - Brži, manji, dobar za CPU (110M parametara)
-- **microsoft/deberta-v3-base** - Točniji, sporiji (184M parametara)
+- *BERT-base-uncased* 
+- *DeBERTa-v3-base*
+- *RoBERTa-base*
+- *Albert-base-v2*
+- *DistilBERT-base-uncased*
 
 **Ime modela:**
-- Unesite opisno ime (npr. "Moj Climate Model")
+- Unesite opisno ime za vaš model
 - Koristit će se za identifikaciju modela
 
 **Training parametri:**
@@ -321,82 +277,51 @@ Aplikacija će automatski provjeriti datoteku i prikazati:
 |-----------|--------|---------|------|
 | **Epochs** | 1-10 | 3 | Broj prolazaka kroz podatke |
 | **Batch Size** | 4-32 | 16 | Broj uzoraka po iteraciji |
-| **Learning Rate** | 1e-5 - 5e-5 | 2e-5 | Brzina učenja |
+| **Learning Rate** | Custom input | 2e-5 | Brzina učenja (unesite željenu vrijednost, npr. 0.00002) |
 | **Validation Split** | 10-30% | 20% | Postotak podataka za validaciju |
 
 **Preporuke:**
-- Više epochs = bolja točnost, ali duže treniranje
-- Manji batch size ako nemate GPU
-- Zadržite default learning rate
+- Više epoha = bolja točnost, ali duže treniranje
+- Learning rate: tipično između 1e-6 (0.000001) i 1e-2 (0.01)
 
-![Screenshot 6: Konfiguracija parametara treniranja](./docs/screenshots/06-training-config.png)
-*Forma sa svim parametrima: Model Name input, Base Model dropdown, Epochs slider (1-10), Batch Size slider (4-32), Learning Rate input, Validation Split slider (10-30%). Prikazan estimated training time.*
+![Screenshot 6: Konfiguracija parametara treniranja](./screenshots/06b-training-configuration.png)
+*Forma sa svim parametrima: Model Name input, Base Model dropdown, broj epoha, batch size slider (4-32), learning rate input, Validation Split dropdown.*
 
 ### 6.5 Pokretanje treniranja
 
 **1. Kliknite "Start Training"**
 
 **2. Spremite svoj 6-znamenkasti kod!**
-```
-┌──────────────────────────────────────┐
-│  Training started!                   │
-│  Your model code: abc123             │
-│  ⚠️ SAVE THIS CODE!                  │
-│  You'll need it to access your model │
-└──────────────────────────────────────┘
-```
 
 **⚠️ VAŽNO:** Ovaj kod je jedini način za pristup vašem modelu!
 
 **3. Pratite progres**
 
-Tijekom treniranja vidjet ćete:
-- Progress bar (0-100%)
-- Trenutni epoch (npr. "Epoch 2/3")
-- Training loss (smanjuje se = dobro)
-- Validation accuracy (povećava se = dobro)
-- Preostalo vrijeme
+Tijekom treniranja vidjet ćete podatke o svom modelu.
 
-![Screenshot 7: Progress treniranja](./docs/screenshots/07-training-progress.png)
-*Modal prozor sa progress barom (npr. 52%), prikazan model code "abc123" (⚠️ SAVE THIS CODE!), Epoch 3/5, Training Loss: 0.421, Validation Accuracy: 82.3%, Time Remaining: ~11 minutes.*
+![Screenshot 7: Potvrda početka treniranja](./screenshots/07-training-start.png)
 
-![Screenshot 8: Treniranje završeno](./docs/screenshots/08-training-complete.png)
-*✅ Training completed! Progress bar 100%, Final Validation Accuracy: 89.5%, Total time: 22 minutes. Gumbi: "Go to Model Access", "Train Another Model", "Close".*
+![Screenshot 8: Progress treniranja](./screenshots/08-training-progress.png)
+*Detaljan prikaz treniranja podatka o treniranju.*
 
 **4. Čekanje završetka**
 
-Procijenjeno vrijeme:
-- Manje od 500 primjera: 5-10 min
-- 500-2000 primjera: 10-20 min
-- 2000-5000 primjera: 20-40 min
-- Više od 5000 primjera: 40+ min
+Vrijeme treniranja može varirati od nekoliko minuta do čak i iznad jednog sata, ovisno o veličini dataseta i odabranim parametrima.
 
 **Brzina ovisi o:**
 - GPU vs CPU (GPU je 10-20x brži)
 - Veličini dataseta
-- Broju epochs
-- Base modelu (BERT brži od DeBERTa)
+- Broju epoha
+- Base modelu
 
 ### 6.6 Završetak treniranja
 
-Kada je treniranje gotovo, vidjet ćete:
-```
-✅ Training completed!
-📊 Final Validation Accuracy: 89.5%
-⏱️ Total time: 15 minutes
-🔑 Model code: abc123
-
-✓ Training Loss: 0.234
-✓ Validation Loss: 0.312
-```
+Kada je treniranje gotovo, nakon osvježavanja statusa, otvorit će se ekran s informacijama o modelu istovjetan onom na Screenshotu 10.
 
 **Sljedeći koraci:**
-- Kopirajte model code negdje sigurno
-- Kliknite **Go to Model Access** za testiranje modela
+- Kopirajte model code
+- Kliknite **Model Access** za testiranje modela
 - Model će biti dostupan 7 dana
-
-![Screenshot 10: Informacije o modelu](./docs/screenshots/10-model-info.png)
-*Card sa svim info: 📦 Ime modela, Base Model, Created/Expires datumi (zelena boja - 7 days remaining), Status: ✅ Ready, Training Metrics (Accuracy: 89.5%, Epochs: 5, Samples: 1,000). Gumbi: "Analyze Text" i "Download Model".*
 
 ---
 
@@ -407,40 +332,26 @@ Kada je treniranje gotovo, vidjet ćete:
 **1. Kliknite na "Model Access" tab**
 
 **2. Unesite 6-znamenkasti kod**
-```
-┌──────────────────────────────────────┐
-│  Enter your model code:              │
-│  [a][b][c][1][2][3]                  │
-│          [Access Model]              │
-└──────────────────────────────────────┘
-```
 
 **3. Kliknite "Access Model"**
 
-![Screenshot 9: Unos koda za pristup modelu](./docs/screenshots/09-model-code-input.png)
-*6 pojedinačnih input boxova za kod (npr. [a][b][c][1][2][3]), "Access Model" gumb, tekst ispod: "Enter your 6-character model code".*
+![Screenshot 9: Unos koda za pristup modelu](./screenshots/09-model-code-input.png)
+*Input polje za unos model koda (npr. "abc123") i gumb "Access Model".*
 
 ### 7.2 Informacije o modelu
 
-Nakon uspješnog pristupa, vidjet ćete:
+Nakon uspješnog pristupa (ispravnog unosa koda), vidjet ćete stranicu koja prikazuje detalje o vašem modelu:
+```
+- Ime modela
+- Base model
+- Bilješke
+- Broj epoha
+- Validacijska točnost
+- Preostalo vrijeme do brisanja modela
+```
 
-```
-┌──────────────────────────────────────┐
-│  📦 Moj Climate Model                │
-│  ────────────────────────────────    │
-│  Base Model: bert-base-uncased       │
-│  Created: 2025-11-04 10:30          │
-│  Expires: 2025-11-11 10:30          │
-│  Status: ✅ Ready                     │
-│                                      │
-│  Training Metrics:                   │
-│  • Final Accuracy: 89.5%             │
-│  • Epochs: 3                         │
-│  • Training Samples: 1,000           │
-│                                      │
-│  [Analyze Text]  [Download Model]   │
-└──────────────────────────────────────┘
-```
+![Screenshot 10: Pristup vlastitom modelu](./screenshots/10-model-info.png)
+*Prikaz informacija o modelu i sučelje za unos teksta za analizu.*
 
 ### 7.3 Korištenje vlastitog modela
 
@@ -462,51 +373,23 @@ Nakon uspješnog pristupa, vidjet ćete:
 **1. Kliknite "Download Model"**
 
 **2. Pratite progress:**
-```
-┌──────────────────────────────────────┐
-│  📥 Downloading Model                │
-├──────────────────────────────────────┤
-│  Progress: ██████████░░ 65%         │
-│  Phase: Compressing model files      │
-│  Size: 234 / 500 MB                  │
-│                                      │
-│  Files: 3 / 6 completed              │
-│  ⏱️ Time: ~15s remaining             │
-└──────────────────────────────────────┘
-```
 
 **3. Spremite ZIP datoteku**
 
 Datoteka će se preuzeti kao: `deception_model_abc123.zip`
 
-![Screenshot 11: Download progress](./docs/screenshots/11-download-progress.png)
-*Modal "📥 Downloading Model": Progress bar 54%, Phase: "Compressing tokenizer files", Size: 267 / 500 MB, Files: 3 / 6 completed, Time: ~8s remaining.*
+![Screenshot 11: Download progress](./screenshots/11-download-progress.png)
+*Prikazivanje postotka kreacije .zip arhive modela.*
 
-### 7.5 Sadržaj ZIP datoteke
-
-```
-deception_model_abc123.zip
-├── model.safetensors          (glavni model, ~500 MB)
-├── config.json                (konfiguracija modela)
-├── tokenizer.json             (tokenizer)
-├── tokenizer_config.json      (tokenizer config)
-├── special_tokens_map.json    (specijalni tokeni)
-├── vocab.txt                  (vokabular)
-└── README.txt                 (upute za korištenje)
-```
-
-### 7.6 Rok trajanja modela
+### 7.5 Rok trajanja modela
 
 ⚠️ **Vlastiti modeli se automatski brišu nakon 7 dana!**
 
 **Preostalo vrijeme vidite u model info:**
-```
-Expires: 2025-11-11 10:30 (3 days remaining)
-```
 
 **Što učiniti:**
 - Preuzmite model prije isteka roka
-- Ili ga ponovno trenirajte i dobijete novi kod
+- Ili ga ponovno trenirajte i pristupite kroz novi kod
 
 ---
 
@@ -519,20 +402,11 @@ LIME (Local Interpretable Model-agnostic Explanations) pokazuje koje riječi su 
 
 **Kako čitati LIME vizualizaciju:**
 
-```
-Climate change is a serious global issue supported by science.
-[zeleno] [zeleno]  [crveno] [neutral] [zeleno] [zeleno] [zeleno]
-```
+- Riječi označene crvenom bojom doprinose odluci "Deceptive"
+- Riječi označene zelenom bojom doprinose odluci "Truthful"
+- Prikazani brojevi pokazuju koliko svaka riječ doprinosi konačnoj odluci - veći broj = veći utjecaj
 
-**Boje:**
-- 🟢 **Zeleno** = Riječi koje podržavaju "Truthful" predikciju
-- 🔴 **Crveno** = Riječi koje podržavaju "Deceptive" predikciju
-- ⚪ **Neutralno** = Riječi bez značajnog utjecaja
-
-**Intenzitet boje** = Jačina utjecaja
-
-![Screenshot 12: LIME objašnjenje](./docs/screenshots/12-lime-explanation.png)
-*Tekst sa obojenim riječima: zelene riječi ("scientific", "evidence", "research") podržavaju Truthful, crvene ("hoax", "fake") podržavaju Deceptive. Legend sa 🟢 Supports Truthful, 🔴 Supports Deceptive, ⚪ Neutral.*
+![Screenshot 12: LIME objašnjenje](./screenshots/12-lime-explanation.png)
 
 ### 8.2 SHAP objašnjenja
 
@@ -541,51 +415,16 @@ SHAP (SHapley Additive exPlanations) koristi game theory za objašnjenje važnos
 
 **Kako čitati SHAP vizualizaciju:**
 
-Slično kao LIME, ali s preciznim numeričkim vrijednostima:
+Čitanje SHAP vizualizacije gotovo je identično kao i kod LIME:
+- Riječi s pozitivnim SHAP vrijednostima (zelene) doprinose odluci "Truthful"
+- Riječi s negativnim SHAP vrijednostima (crvene) doprinose odluci "Deceptive"
+- Koeficijent pokazuje koliko svaka riječ utječe
 
-```
-"climate" → +0.42 (jako podržava Truthful)
-  - "hoax"    → -0.38 (jako podržava Deceptive)
-  - "is"      → +0.01 (neutralno)
-```
+![Screenshot 13: SHAP objašnjenje](./screenshots/13-shap-explanation-positive.png)
+*Bar chart sa SHAP vrijednostima za riječi koje doprinose odluci "Truthful".*
 
-![Screenshot 13: SHAP objašnjenje](./docs/screenshots/13-shap-explanation.png)
-*Tekst sa intenzitetom boja sličan LIME + bar chart sa top 10 riječi i njihovim SHAP vrijednostima (pozitivne i negativne).*
-
-### 8.3 Usporedba LIME i SHAP
-
-| Aspekt | LIME | SHAP |
-|--------|------|------|
-| **Brzina** | Brži | Sporiji |
-| **Preciznost** | Približna | Precizna |
-| **Razumljivost** | Vrlo jednostavno | Malo kompleksnije |
-| **Konzistentnost** | Može varirati | Uvijek ista |
-
-**Preporuka:** Gledajte obje vizualizacije za najbolje razumijevanje!
-
-### 8.4 Primjer analize
-
-**Tekst:**
-```
-"Vaccines are dangerous and cause autism according to many doctors."
-```
-
-**Predikcija:** ⚠️ Deceptive (91.2%)
-
-**LIME analiza:**
-- 🔴 "dangerous" → Jako negativan signal
-- 🔴 "cause autism" → Jako negativan signal
-- 🔴 "according to many" → Vague claim signal
-- 🟢 "vaccines" → Neutralno (kontekst ga čini negativnim)
-- 🟢 "doctors" → Neutralno (lažni autoritet)
-
-**Interpretacija:**
-Model je prepoznao:
-1. Alarmističke riječi ("dangerous")
-2. Lažne medicinske tvrdnje ("cause autism")
-3. Nejasne izvore ("many doctors")
-
----
+![Screenshot 14: SHAP objašnjenje za Deceptive](./screenshots/14-shap-explanation-negative.png)
+*Bar chart sa SHAP vrijednostima za riječi koje doprinose odluci "Deceptive".*
 
 ## 9. RJEŠAVANJE PROBLEMA
 
@@ -709,19 +548,14 @@ O: Trenutno ne. Modeli su trenirani isključivo na engleskim tekstovima.
 **P: Koliko teksta mogu analizirati?**  
 O: Maksimalno 1300 znakova (~200 riječi) po analizi.
 
-**P: Je li aplikacija besplatna?**  
-O: Da, potpuno je besplatna i open-source.
 
 ### 10.2 Modeli
 
 **P: Koji je najbolji model?**  
 O: Ovisi o sadržaju:
-- Za klimatske promjene: **DeBERTa Climate Change**
-- Za COVID-19: **DeBERTa COVID-19**
-- Za općenite teme: **DeBERTa Combined**
-
-**P: Koliko su modeli točni?**  
-O: Između 85-92% ovisno o modelu i domeni teksta.
+- Za klimatske promjene: **Pretrenirani modeli na skupovima podataka o klimatskim promjenama**.
+- Za COVID-19: **Pretrenirani modeli na COVID-19 vijestima**.
+- Za općenite teme: **Combined modeli ili custom trenirani modeli**.
 
 **P: Mogu li koristiti model na drugim jezicima?**  
 O: Ne, modeli su trenirani samo na engleskom.
@@ -732,15 +566,15 @@ O: Ne, modeli su trenirani samo na engleskom.
 O: Minimalno 100, ali preporučujemo 500+ za dobre rezultate.
 
 **P: Koliko dugo traje treniranje?**  
-O: 10-30 minuta ovisno o broju primjera i dostupnosti GPU-a.
+O: Može varirati od nekoliko minuta do nekoliko sati, ovisno o veličini dataseta i parametrima.
 
 **P: Trebam li GPU?**  
-O: Ne, ali GPU značajno ubrzava treniranje (10-20x).
+O: Ne, ali GPU značajno ubrzava treniranje.
 
 **P: Mogu li zaustaviti treniranje?**  
 O: Ne, treniranje mora završiti do kraja. Progress se ne sprema.
 
-**P: Što ako zatvori aplikaciju tijekom treniranja?**  
+**P: Što ako ugasim backend aplikaciju tijekom treniranja?**  
 O: Treniranje će se prekinuti i morat ćete početi ispočetka.
 
 ### 10.4 Vlastiti modeli
@@ -749,7 +583,7 @@ O: Treniranje će se prekinuti i morat ćete početi ispočetka.
 O: 7 dana od završetka treniranja.
 
 **P: Mogu li produljiti rok trajanja?**  
-O: Ne, ali možete preuzeti model i ponovno ga uploadati (buduća funkcionalnost).
+O: Ne, ali možete preuzeti model.
 
 **P: Što ako zaboravim kod?**  
 O: Nažalost, nema načina za oporavak. Treba ponovno trenirati model.
@@ -758,12 +592,9 @@ O: Nažalost, nema načina za oporavak. Treba ponovno trenirati model.
 O: Da, svatko s kodom može pristupiti modelu.
 
 **P: Koliko modela mogu trenirati?**  
-O: Nema limita, ali maksimalno 100 aktivnih modela istovremeno u sustavu.
+O: Nema limita, ali maksimalno 100 aktivnih modela može postojati istovremeno u sustavu.
 
 ### 10.5 Sigurnost i privatnost
-
-**P: Gdje se spremaju moji podatci?**  
-O: Lokalno na vašem računalu. Ništa se ne šalje na cloud.
 
 **P: Mogu li drugi vidjeti moje modele?**  
 O: Ne, osim ako im ne date 6-znamenkasti kod.
@@ -802,7 +633,7 @@ O: Da, nema vanjske komunikacije i nema autentifikacije (nema user accounta).
 **Treniranje:**
 - CSV datoteka do 100 MB
 - Minimalno 100 primjera
-- Maksimalno 10 epochs
+- Maksimalno 10 epoha
 
 **Modeli:**
 - Zadržavaju se 7 dana
