@@ -238,7 +238,7 @@ text,label
 - ❌ Prazni redovi nisu dozvoljeni
 - ❌ Tekst ne smije biti duži od 1300 znakova
 
-![Screenshot 5: CSV upload zona](./docs/screenshots/05-csv-upload.png)
+![Screenshot 5: CSV upload zona](./screenshots/05-csv-upload.png)
 *Drag & drop zona sa "Browse files" gumbom.
 
 ### 6.3 Upload CSV datoteke
@@ -255,7 +255,7 @@ Aplikacija će automatski provjeriti datoteku i prikazati informacije o podacima
 - Stupce
 - Raspodjelu labela
 
-![Screenshot 6: Validacija podataka nakon upload-a](./docs/screenshots/06-data-validation.png)
+![Screenshot 6: Validacija podataka nakon upload-a](./screenshots/06-data-validation.png)
 *Prikaz validacije podataka: Broj primjera: 236, Stupci: text, label, Raspodjela: Truthful: 118 (50%), Deceptive: 118 (50%).*
 
 ### 6.4 Konfiguracija treniranja
