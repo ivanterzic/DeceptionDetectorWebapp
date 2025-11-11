@@ -21,31 +21,30 @@ CACHE_INFO_FILE = BASE_MODELS_DIR / 'cache_info.json'
 SUPPORTED_BASE_MODELS = {
     'bert-base-uncased': {
         'name': 'BERT Base (Uncased)',
-        'description': 'General-purpose BERT model, good for most text classification tasks',
+        'description': '',
         'size_mb': 440,
         'recommended': True
     },
     'microsoft/deberta-v3-base': {
         'name': 'DeBERTa v3 Base',
-        'description': 'Enhanced BERT with disentangled attention, often performs better than BERT',
+        'description': '',
         'size_mb': 390,
         'recommended': True
     },
     'albert-base-v2': {
         'name': 'ALBERT Base v2',
-        'description': 'Lightweight alternative to BERT, faster training with similar performance',
-        'size_mb': 47,
+        'description': '',
         'recommended': True
     },
     'roberta-base': {
         'name': 'RoBERTa Base',
-        'description': 'Robustly optimized BERT, often performs well on text classification',
+        'description': '',
         'size_mb': 500,
         'recommended': True
     },
     'distilbert-base-uncased': {
         'name': 'DistilBERT Base',
-        'description': 'Distilled BERT, 40% smaller and 60% faster while retaining 95% performance',
+        'description': '',
         'size_mb': 255,
         'recommended': True
     }
