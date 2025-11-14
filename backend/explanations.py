@@ -9,7 +9,7 @@ from config import CLASS_NAMES
 from ai_utils import get_pred_probs
 
 
-def get_lime_explanation(model_key: str, text: str, label_mapping=None) -> List[Tuple[str, float]]:
+def get_lime_explanation(model_key: str, text: str, label_mapping=None, top_n_words: int = None) -> List[Tuple[str, float]]:
     """
     Generate LIME explanation for text classification.
     
@@ -17,6 +17,7 @@ def get_lime_explanation(model_key: str, text: str, label_mapping=None) -> List[
         model_key: Key for the preloaded model
         text: Text to explain
         label_mapping: Optional mapping for label names
+        top_n_words: Number of top words to return (None = all words)
         
     Returns:
         List[Tuple[str, float]]: List of (word, importance_score) tuples
@@ -40,11 +41,17 @@ def get_lime_explanation(model_key: str, text: str, label_mapping=None) -> List[
         def predict_fn(texts):
             return get_pred_probs(model_key, texts, label_mapping)
         
+        # If top_n_words is None, return explanations for ALL words in the input text
+        if top_n_words is None:
+            num_features = len(text.split())
+        else:
+            num_features = top_n_words
+        
         explanation_start = time.time()
         exp = explainer.explain_instance(
             text,
             classifier_fn=predict_fn,
-            num_features=10,
+            num_features=num_features,
             num_samples=500  # Increased for better stability
         )
         explanation_end = time.time()
@@ -68,30 +75,37 @@ def get_lime_explanation(model_key: str, text: str, label_mapping=None) -> List[
         return []
 
 
-def format_shap_exp(words: List[str], weights: List[float], top_n: int = 10) -> List[Tuple[str, float]]:
+def format_shap_exp(words: List[str], weights: List[float], top_n_words: int = None) -> List[Tuple[str, float]]:
     """
     Format SHAP explanation results.
     
     Args:
         words: List of words
         weights: List of importance weights
-        top_n: Number of top features to return
+        top_n_words: Number of top features to return (None = all words in sentence order)
         
     Returns:
         List[Tuple[str, float]]: Formatted word-weight pairs
     """
     words = [word.strip() for word in words]
+    
+    # If top_n_words is None, return ALL words in the original sentence order
+    if top_n_words is None:
+        return [(str(word), float(weight)) for word, weight in zip(words, weights)]
+    
+    # Otherwise, sort by absolute weight and return top N
     word_weight_pairs = sorted(zip(words, weights), key=lambda x: abs(x[1]), reverse=True)
-    return [(str(word), float(weight)) for word, weight in word_weight_pairs[:top_n]]
+    return [(str(word), float(weight)) for word, weight in word_weight_pairs[:top_n_words]]
 
 
-def get_shap_explanation(model_key: str, text: str) -> List[Tuple[str, float]]:
+def get_shap_explanation(model_key: str, text: str, top_n_words: int = None) -> List[Tuple[str, float]]:
     """
     Generate SHAP explanation for text classification.
     
     Args:
         model_key: Key for the preloaded model
         text: Text to explain
+        top_n_words: Number of top words to return (None = all words in sentence order)
         
     Returns:
         List[Tuple[str, float]]: List of (word, importance_score) tuples
@@ -153,7 +167,7 @@ def get_shap_explanation(model_key: str, text: str) -> List[Tuple[str, float]]:
         words = shap_output.data[0]
         weights = shap_output.values[0][:, 1]
         
-        result = format_shap_exp(words, weights, top_n=10)
+        result = format_shap_exp(words, weights, top_n_words=top_n_words)
         
         end_time = time.time()
         total_time = end_time - start_time

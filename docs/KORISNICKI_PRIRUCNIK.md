@@ -1,7 +1,7 @@
 # KORISNIČKI PRIRUČNIK - DECEPTION DETECTOR
 
-**Verzija:** 1.1  
-**Datum:** 2025-11-10
+**Verzija:** 1.2  
+**Datum:** 2025-11-14
 
 ---
 
@@ -173,9 +173,14 @@ Iz padajućeg izbornika odaberite model:
 
 **Tumačenje rezultata:**
 
-```
-Predikcija može biti "Truthful" (vjerodostojan) ili "Deceptive" (obmanjujući). Model također prikazuje "Confidence" - postotak sigurnosti u svoju odluku
-```
+Rezultati uključuju:
+- **Predikcija**: "Truthful" (vjerodostojan) ili "Deceptive" (obmanjujući)
+- **Confidence**: Postotak sigurnosti modela u svoju odluku (0-100%)
+- **Vizualizacija objašnjenja**: Originalni tekst s obojenim riječima
+  - Zelene riječi = podržavaju istinitost
+  - Crvene riječi = podržavaju obmanu
+  - Intenzitet boje = jačina utjecaja
+- **LIME/SHAP tabovi**: Detaljne liste riječi s numeričkim težinama
 
 **Što znače postoci?**
 
@@ -400,11 +405,27 @@ Datoteka će se preuzeti kao: `deception_model_abc123.zip`
 **Što je LIME?**
 LIME (Local Interpretable Model-agnostic Explanations) pokazuje koje riječi su najviše utjecale na odluku modela.
 
-**Kako čitati LIME vizualizaciju:**
+**Vizualizacija Objašnjenja:**
 
-- Riječi označene crvenom bojom doprinose odluci "Deceptive"
-- Riječi označene zelenom bojom doprinose odluci "Truthful"
-- Prikazani brojevi pokazuju koliko svaka riječ doprinosi konačnoj odluci - veći broj = veći utjecaj
+Aplikacija prikazuje originalni tekst s **obojenim riječima** koje pokazuju doprinos svake riječi:
+- **Zelene riječi** = doprinose odluci "Truthful" (istinitost)
+- **Crvene riječi** = doprinose odluci "Deceptive" (obmana)
+- **Intenzitet boje** = jačina doprinosa (tamnija boja = veći utjecaj)
+- Neobojene riječi = minimalan ili nikakav utjecaj na odluku
+
+**Odabir broja riječi:**
+
+Gore desno možete odabrati koliko riječi želite vidjeti u listi:
+- **1, 3, 5** = samo najvažnije riječi
+- **10** = preporučeno za većinu tekstova (zadano)
+- **20** = detaljna analiza
+- **all** = prikaži sve riječi iz teksta
+
+**Kako čitati LIME popis:**
+
+- Popis riječi prikazan je **sortiran po važnosti** (najvažnije na vrhu)
+- Prikazani brojevi pokazuju koliko svaka riječ doprinosi konačnoj odluci
+- Veći broj = veći utjecaj na odluku modela
 
 ![Screenshot 12: LIME objašnjenje](./screenshots/12-lime-explanation.png)
 
@@ -413,12 +434,28 @@ LIME (Local Interpretable Model-agnostic Explanations) pokazuje koje riječi su 
 **Što je SHAP?**
 SHAP (SHapley Additive exPlanations) koristi game theory za objašnjenje važnosti riječi.
 
-**Kako čitati SHAP vizualizaciju:**
+**Vizualizacija Objašnjenja:**
+
+Kao i kod LIME, SHAP također prikazuje originalni tekst s **obojenim riječima**:
+- **Zelene riječi** = doprinose odluci "Truthful" (istinitost)
+- **Crvene riječi** = doprinose odluci "Deceptive" (obmana)
+- **Intenzitet boje** = jačina doprinosa
+- Neobojene riječi = minimalan ili nikakav utjecaj
+
+**Odabir broja riječi:**
+
+Gore desno možete odabrati koliko riječi želite vidjeti u listi:
+- **1, 3, 5** = samo najvažnije riječi
+- **10** = preporučeno za većinu tekstova (zadano)
+- **20** = detaljna analiza
+- **all** = prikaži sve riječi iz teksta
+
+**Kako čitati SHAP popis:**
 
 Čitanje SHAP vizualizacije gotovo je identično kao i kod LIME:
 - Riječi s pozitivnim SHAP vrijednostima (zelene) doprinose odluci "Truthful"
 - Riječi s negativnim SHAP vrijednostima (crvene) doprinose odluci "Deceptive"
-- Koeficijent pokazuje koliko svaka riječ utječe
+- Koeficijent pokazuje koliko svaka riječ utječe na konačnu odluku
 
 ![Screenshot 13: SHAP objašnjenje](./screenshots/13-shap-explanation-positive.png)
 *Bar chart sa SHAP vrijednostima za riječi koje doprinose odluci "Truthful".*

@@ -148,6 +148,7 @@
                 <div class="tab-pane fade show active" id="lime-tab" role="tabpanel">
                   <LimeExplanation 
                     :lime-explanation="limeExplanation"
+                    :original-text="results.original_text"
                     :loading="limeLoading"
                     :error="limeError"
                     :is-active="activeTab === 'lime'"
@@ -159,6 +160,7 @@
                 <div class="tab-pane fade" id="shap-tab" role="tabpanel">
                   <ShapExplanation 
                     :shap-explanation="shapExplanation"
+                    :original-text="results.original_text"
                     :loading="shapLoading"
                     :error="shapError"
                     :is-active="activeTab === 'shap'"
@@ -248,8 +250,8 @@ export default {
       try {
         const endpoint = this.limeEndpoint || `${this.apiBaseUrl}/explain/lime`
         const payload = this.limeEndpoint ? 
-          { text: this.results.original_text } : 
-          { text: this.results.original_text, model: this.results.model_used }
+          { text: this.results.original_text, top_n_words: null } : 
+          { text: this.results.original_text, model: this.results.model_used, top_n_words: null }
           
         const response = await axios.post(endpoint, payload)
         this.limeExplanation = response.data.lime_explanation
@@ -271,8 +273,8 @@ export default {
       try {
         const endpoint = this.shapEndpoint || `${this.apiBaseUrl}/explain/shap`
         const payload = this.shapEndpoint ? 
-          { text: this.results.original_text } : 
-          { text: this.results.original_text, model: this.results.model_used }
+          { text: this.results.original_text, top_n_words: null } : 
+          { text: this.results.original_text, model: this.results.model_used, top_n_words: null }
           
         const response = await axios.post(endpoint, payload)
         this.shapExplanation = response.data.shap_explanation

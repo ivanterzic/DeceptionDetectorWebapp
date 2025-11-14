@@ -115,7 +115,8 @@ def register_routes(app):
             
             text = data.get('text', '').strip()
             model_key = data.get('modelName', '').strip()
-            # params = data.get('params', {})  # For future extensibility
+            params = data.get('params', {})  # For future extensibility
+            top_n_words = params.get('top_n_words', None)  # None = all words
             
             # Validate text
             is_valid, cleaned_text, error_msg = validate_text_input(text)
@@ -142,10 +143,10 @@ def register_routes(app):
             prediction = results[0]
             
             # Run SHAP explanation
-            shap_explanation = get_shap_explanation(model_key, cleaned_text)
+            shap_explanation = get_shap_explanation(model_key, cleaned_text, top_n_words=top_n_words)
             
             # Run LIME explanation
-            lime_explanation = get_lime_explanation(model_key, cleaned_text, LABEL_MAPPING)
+            lime_explanation = get_lime_explanation(model_key, cleaned_text, LABEL_MAPPING, top_n_words=top_n_words)
             
             # Build response
             is_deceptive = (prediction['label'].lower() == 'deceptive')
@@ -237,6 +238,7 @@ def register_routes(app):
                 
             text = data.get('text', '')
             model_key = data.get('model', '')
+            top_n_words = data.get('top_n_words', None)  # None = all words
             
             # Validate inputs
             is_valid, cleaned_text, error_msg = validate_text_input(text)
@@ -247,9 +249,9 @@ def register_routes(app):
             if not is_valid:
                 return jsonify({'error': error_msg}), 400
             
-            print(f"🔍 LIME explanation request - Model: {model_key}, Text length: {len(cleaned_text)}")
+            print(f"🔍 LIME explanation request - Model: {model_key}, Text length: {len(cleaned_text)}, top_n_words: {top_n_words}")
             
-            lime_explanation = get_lime_explanation(model_key, cleaned_text, LABEL_MAPPING)
+            lime_explanation = get_lime_explanation(model_key, cleaned_text, LABEL_MAPPING, top_n_words=top_n_words)
             
             response = {
                 'lime_explanation': lime_explanation,
@@ -277,6 +279,7 @@ def register_routes(app):
                 
             text = data.get('text', '')
             model_key = data.get('model', '')
+            top_n_words = data.get('top_n_words', None)  # None = all words
             
             # Validate inputs
             is_valid, cleaned_text, error_msg = validate_text_input(text)
@@ -287,9 +290,9 @@ def register_routes(app):
             if not is_valid:
                 return jsonify({'error': error_msg}), 400
             
-            print(f"📊 SHAP explanation request - Model: {model_key}, Text length: {len(cleaned_text)}")
+            print(f"📊 SHAP explanation request - Model: {model_key}, Text length: {len(cleaned_text)}, top_n_words: {top_n_words}")
             
-            shap_explanation = get_shap_explanation(model_key, cleaned_text)
+            shap_explanation = get_shap_explanation(model_key, cleaned_text, top_n_words=top_n_words)
             
             response = {
                 'shap_explanation': shap_explanation,

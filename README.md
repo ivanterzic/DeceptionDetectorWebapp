@@ -34,6 +34,11 @@ AI-powered web application for detecting deception in text using state-of-the-ar
 - **LIME Explanations**: See which words influenced the prediction most
 - **SHAP Values**: Understand feature importance with Shaply values
 - **Dual Explanations**: Compare LIME and SHAP side-by-side
+- **Visual Text Coloring**: Original text displayed with color-coded words
+  - **Green words**: Indicate truthfulness (positive contribution)
+  - **Red words**: Indicate deception (negative contribution)
+  - **Color intensity**: Reflects strength of contribution
+- **Flexible Display**: Choose how many top words to show (1, 3, 5, 10, 20, or all)
 
 ### 📦 Model Management
 - **Download Models**: Export trained models as ZIP archives
@@ -171,8 +176,13 @@ python generate_secrets.py
 5. View results:
    - **Prediction**: Deceptive or Truthful
    - **Confidence**: Probability score
-   - **LIME**: Word-level importance highlighting
-   - **SHAP**: Feature impact visualization
+   - **Visual Explanation**: Color-coded text showing word contributions
+     - Green words = support truthfulness
+     - Red words = support deception
+     - Stronger color = higher importance
+   - **LIME Tab**: Word-level importance with ranked list
+   - **SHAP Tab**: Feature impact visualization with ranked list
+   - **Word Count Selector**: Choose how many top words to display (1, 3, 5, 10, 20, all)
 
 ### 2️⃣ Train Your Own Model
 
