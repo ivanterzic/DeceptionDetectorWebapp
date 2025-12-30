@@ -498,7 +498,87 @@ print(response.json())
 
 ---
 
-## 📝 Data Format
+## � Production Deployment
+
+### For Traditional Servers (VPS, Dedicated, Cloud VM)
+
+We provide complete automated deployment for Linux servers with terminal access:
+
+#### Quick Deploy (Recommended)
+
+```bash
+# On your local machine
+cd webapp
+
+# Upload to server
+scp -r . user@your-server:/tmp/webapp/
+
+# SSH to server and run deployment
+ssh user@your-server
+cd /tmp/webapp/deployment
+chmod +x deploy.sh
+sudo ./deploy.sh
+```
+
+**The script automatically:**
+- ✅ Installs dependencies (Python, Node.js, Nginx, SSL)
+- ✅ Sets up systemd services for auto-start
+- ✅ Configures Nginx reverse proxy
+- ✅ Obtains SSL certificate (Let's Encrypt)
+- ✅ Sets up firewall rules
+- ✅ Downloads AI models (optional)
+
+**Time:** 15-45 minutes depending on model download
+
+#### What You Need
+
+- Ubuntu 20.04+ / Debian 11+ / CentOS 8+
+- 4GB+ RAM (8GB+ recommended)
+- 20GB+ storage
+- Root/sudo access
+- Domain name with DNS configured (optional but recommended)
+
+#### Complete Documentation
+
+- **[deployment/DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md)** - Full step-by-step guide
+- **[deployment/QUICK_REFERENCE.md](deployment/QUICK_REFERENCE.md)** - Essential commands & troubleshooting
+- **[docs/PRODUCTION_SECURITY.md](docs/PRODUCTION_SECURITY.md)** - Security checklist
+- **[deployment/README.md](deployment/README.md)** - Deployment files overview
+
+#### Architecture
+
+```
+Internet → Nginx (:443 HTTPS) → Frontend (:8080) or Backend (:5000)
+                                      ↓                    ↓
+                                 Express serves       Flask API with
+                                 built Vue.js         Gunicorn WSGI
+```
+
+#### After Deployment
+
+The application will be available at `https://yourdomain.com`
+
+**Essential commands:**
+```bash
+# Restart services
+sudo systemctl restart deception-detector-backend
+sudo systemctl restart deception-detector-frontend
+
+# View logs
+sudo journalctl -u deception-detector-backend -f
+
+# Health check
+sudo /opt/deception-detector/deployment/health-check.sh
+
+# Update application
+sudo /opt/deception-detector/deployment/update.sh
+```
+
+For detailed instructions and troubleshooting, see the deployment documentation above.
+
+---
+
+## �📝 Data Format
 
 ### Training CSV Format
 

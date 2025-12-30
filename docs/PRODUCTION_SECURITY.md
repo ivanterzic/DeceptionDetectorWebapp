@@ -1,103 +1,162 @@
-﻿# Production Deployment Checklist
+﻿# Production Deployment & Security Checklist
 
-**Last Updated:** November 10, 2025
+**Last Updated:** December 30, 2025
+
+> **Quick Start:** For complete deployment instructions, see [deployment/DEPLOYMENT_GUIDE.md](../deployment/DEPLOYMENT_GUIDE.md)
 
 ---
 
 ##  What's Already Done
 
-All security features are implemented:
+All security features are implemented and ready for production:
 -  Input validation & sanitization
--  Rate limiting (10/20/60 per minute)
--  Security headers (X-Frame-Options, CSP, etc.)
--  JWT authentication for public API
--  Error handling (no stack traces exposed)
--  .env file configuration
+-  Rate limiting (20/5/60 per minute by endpoint)
+-  Security headers (X-Frame-Options, CSP, HSTS, etc.)
+-  JWT authentication for public API with SHA256 password hashing
+-  Error handling (no stack traces exposed in production)
+-  Environment-based configuration (.env file)
+-  CORS configuration
+-  Path traversal protection
+-  SQL injection protection (if database added)
 
 ---
 
-##  Must Do Before Deployment
+##  Automated Deployment
 
-### 1. Setup HTTPS
+**NEW:** We've created automated deployment scripts!
 
-```bash
-# Install certificate (Let's Encrypt)
-sudo apt-get install certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com
-```
-
-### 2. Update CORS in backend/config.py
-
-**Change:**
-```python
-ALLOWED_ORIGINS = ['http://localhost:8080', 'http://localhost:3000']
-```
-
-**To:**
-```python
-ALLOWED_ORIGINS = ['https://yourdomain.com']
-```
-
-### 3. Disable Debug Mode in backend/.env
+### Quick Deploy (Recommended)
 
 ```bash
-FLASK_ENV=production
-DEBUG_MODE=False
+# On your local machine - run pre-deployment check
+cd webapp
+bash deployment/check-ready.sh
+
+# Upload to server
+scp -r webapp/ user@your-server:/tmp/
+
+# SSH to server and deploy
+ssh user@your-server
+cd /tmp/webapp/deployment
+chmod +x deploy.sh
+sudo ./deploy.sh
 ```
 
-### 4. Generate Production Secrets
+The automated script handles:
+- ✅ System dependencies installation
+- ✅ Python/Node.js environment setup
+- ✅ Systemd service configuration
+- ✅ Nginx reverse proxy with SSL
+- ✅ Firewall configuration
+- ✅ File permissions
+- ✅ Service startup
+
+See [deployment/DEPLOYMENT_GUIDE.md](../deployment/DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+---
+
+##  Pre-Deployment Checklist
+
+### 1. Generate Production Secrets
 
 ```bash
 python generate_secrets.py
-# Copy values to backend/.env
+# Copy JWT_SECRET to backend/.env
 ```
 
-### 5. Configure Firewall
+### 2. Configure Environment Variables
+
+Edit `backend/.env`:
 
 ```bash
+# Production mode
+FLASK_ENV=production
+DEBUG_MODE=False
+
+# Your domain (for CORS)
+ALLOWED_ORIGINS=https://yourdomain.com
+
+# Generated JWT secret (from generate_secrets.py)
+JWT_SECRET=your_64_char_secret_here
+
+# Set API credentials for public API
+API_USERNAME=your_api_username
+API_PASSWORD=your_secure_password
+```
+
+### 3. Update Frontend API URL (if needed)
+
+If deploying to a separate API server, update `frontend/src/config.js`:
+
+```javascript
+export default {
+  apiUrl: 'https://api.yourdomain.com/api'  // Or '/api' for same domain
+}
+```
+
+### 4. Prepare Server
+
+- [ ] Ubuntu 20.04+ / Debian 11+ / CentOS 8+
+- [ ] 4GB+ RAM (8GB+ recommended)
+- [ ] 20GB+ storage (50GB+ with models)
+- [ ] Root/sudo access
+- [ ] Domain DNS configured (A record pointing to server IP)
+- [ ] SSH access configured with key authentication
+
+---
+
+##  Security Configuration
+
+All these are handled by the deployment script, but verify manually:
+
+### 1. HTTPS/SSL Certificate
+
+```bash
+# Automated by deploy.sh or manually:
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# Verify auto-renewal
+sudo certbot renew --dry-run
+```
+
+### 2. Firewall Rules
+
+```bash
+# Allow only necessary ports
 sudo ufw allow 22/tcp    # SSH
-sudo ufw allow 80/tcp    # HTTP (redirect)
+sudo ufw allow 80/tcp    # HTTP (redirects to HTTPS)
 sudo ufw allow 443/tcp   # HTTPS
 sudo ufw deny 5000/tcp   # Block direct backend access
+sudo ufw deny 8080/tcp   # Block direct frontend access
 sudo ufw enable
+
+# Verify
+sudo ufw status
 ```
 
-### 6. Setup NGINX Reverse Proxy
+### 3. Nginx Reverse Proxy
 
-Create /etc/nginx/sites-available/deception-detector:
+Configuration file provided at `deployment/nginx.conf`
 
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-    return 301 https://$server_name$request_uri;
-}
+Installed to: `/etc/nginx/sites-available/deception-detector`
 
-server {
-    listen 443 ssl http2;
-    server_name yourdomain.com;
+Key features:
+- HTTP to HTTPS redirect
+- Modern TLS configuration (TLS 1.2+)
+- Security headers (HSTS, CSP, X-Frame-Options)
+- Request size limits (50MB for datasets)
+- Extended timeouts for AI processing
+- Static file caching
 
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
+### 4. File Permissions
 
-    location / {
-        proxy_pass http://localhost:8080;  # Frontend
-        proxy_set_header Host $host;
-    }
-
-    location /api {
-        proxy_pass http://localhost:5000;  # Backend
-        proxy_set_header Host $host;
-    }
-}
-```
-
-Enable:
 ```bash
-sudo ln -s /etc/nginx/sites-available/deception-detector /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
+# Set secure ownership
+sudo chown -R www-data:www-data /opt/deception-detector
+sudo chown -R www-data:www-data /var/log/deception-detector
+
+# Secure .env file
+sudo chmod 600 /opt/deception-detector/backend/.env
 ```
 
 ---

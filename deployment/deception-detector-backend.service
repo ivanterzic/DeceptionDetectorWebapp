@@ -1,0 +1,42 @@
+[Unit]
+Description=Deception Detector Backend (Flask API)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/deception-detector/backend
+Environment="PATH=/opt/deception-detector/backend/venv/bin"
+EnvironmentFile=/opt/deception-detector/backend/.env
+ExecStart=/opt/deception-detector/backend/venv/bin/gunicorn \
+    --workers 4 \
+    --threads 2 \
+    --timeout 300 \
+    --bind 127.0.0.1:5000 \
+    --access-logfile /var/log/deception-detector/backend-access.log \
+    --error-logfile /var/log/deception-detector/backend-error.log \
+    --log-level info \
+    app:app
+
+# Restart settings
+Restart=always
+RestartSec=10
+StartLimitInterval=400
+StartLimitBurst=3
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/deception-detector/backend/models
+ReadWritePaths=/opt/deception-detector/backend/custom_models
+ReadWritePaths=/opt/deception-detector/backend/base_models
+
+# Resource limits (adjust based on your server)
+MemoryLimit=8G
+CPUQuota=400%
+
+[Install]
+WantedBy=multi-user.target
