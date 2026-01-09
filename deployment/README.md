@@ -1,103 +1,73 @@
-# Deployment Files
+# Deployment Guide
 
-This directory contains all files needed for production deployment on a traditional Linux server.
+Linux deployment with HTTPS for Ubuntu/Debian/CentOS.
 
-## Files Overview
+## SSH Setup
 
-### Core Deployment Files
-
-- **deploy.sh** - Automated deployment script (recommended)
-- **DEPLOYMENT_GUIDE.md** - Complete step-by-step deployment guide
-- **nginx.conf** - Nginx reverse proxy configuration
-- **.env.production.template** - Production environment variables template
-
-### Service Files
-
-- **deception-detector-backend.service** - Systemd service for Flask backend
-- **deception-detector-frontend.service** - Systemd service for Node.js frontend
-
-### Utility Scripts
-
-- **update.sh** - Quick update script for code changes
-- **health-check.sh** - Health monitoring script
-- **check-ready.sh** - Pre-deployment validation script
-
-## Quick Start
-
-### Option 1: Automated Deployment (Recommended)
+First, ensure you can SSH into your server:
 
 ```bash
-# On your local machine
-cd /path/to/webapp
+# Test SSH connection
+ssh user@your-server
 
-# Run pre-deployment check
-bash deployment/check-ready.sh
+# If using a key file
+ssh -i /path/to/key.pem user@your-server
 
-# Upload to server
+# For AWS/cloud instances, the user is often:
+# - ubuntu@ip-address (Ubuntu)
+# - ec2-user@ip-address (Amazon Linux)
+# - root@ip-address (most VPS)
+```
+
+## Quick Deploy
+
+```bash
+# From your local machine, upload the webapp
+cd /path/to/DeceptionDetector/webapp
 scp -r . user@your-server:/tmp/webapp/
 
-# On your server
+# If using a key file
+scp -i /path/to/key.pem -r . user@your-server:/tmp/webapp/
+
+# SSH into server and deploy
 ssh user@your-server
 cd /tmp/webapp/deployment
 chmod +x deploy.sh
 sudo ./deploy.sh
 ```
 
-### Option 2: Manual Deployment
+Enter your domain and email when prompted for automatic HTTPS setup via Let's Encrypt.
 
-Follow the complete guide in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+## Files
 
-## What Gets Deployed
+- **deploy.sh** - Complete deployment with HTTPS
+- **nginx.conf** - Nginx reverse proxy configuration
+- **deception-detector-backend.service** - Backend systemd service
+- **deception-detector-frontend.service** - Frontend systemd service
+- **health-check.sh** - Health monitoring
+- **update.sh** - Quick updates
 
-The deployment installs:
+## What Gets Installed
 
-- Python 3.8+ with virtual environment
-- Node.js 14+ with npm
-- Flask backend running with Gunicorn (WSGI server)
-- Vue.js frontend (pre-built, served by Express)
-- Nginx reverse proxy
-- SSL certificate (via Let's Encrypt)
+- Python 3, Node.js, Nginx
+- Backend with Gunicorn WSGI server
+- Frontend with Express server
+- SSL certificate (Let's Encrypt)
 - Systemd services for auto-start
 - Firewall configuration
-- Log rotation
 
 ## Architecture
 
 ```
-Internet → Nginx (:443 HTTPS) → Frontend (:8080) or Backend (:5000)
-                                      ↓                    ↓
-                                 Express serves       Flask API with
-                                 built Vue.js         Gunicorn WSGI
+Internet → Nginx (:443 HTTPS) → Backend (:5000) or Frontend (:8080)
 ```
 
-## Directory Structure After Deployment
+## Post-Deployment
 
-```
-/opt/deception-detector/
-├── backend/
-│   ├── venv/              # Python virtual environment
-│   ├── models/            # Pre-trained models
-│   ├── custom_models/     # User-trained models
-│   ├── base_models/       # Cached base models
-│   ├── .env               # Environment config (secure)
-│   └── app.py             # Flask application
-├── frontend/
-│   ├── dist/              # Built Vue.js app
-│   ├── node_modules/      # Node dependencies
-│   └── server.js          # Express server
-└── deployment/            # Deployment files
-
-/var/log/deception-detector/
-├── backend-access.log
-└── backend-error.log
-
-/etc/systemd/system/
-├── deception-detector-backend.service
-└── deception-detector-frontend.service
-
-/etc/nginx/sites-available/
-└── deception-detector
-```
+1. Edit `/opt/deception-detector/backend/.env` with your API credentials
+2. Restart services: `sudo systemctl restart deception-detector-{backend,frontend}`
+3. View logs: `journalctl -u deception-detector-backend -f`
+4. Access your app at `https://yourdomain.com`
 
 ## Configuration Files
 

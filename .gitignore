@@ -4,10 +4,21 @@ __pycache__/
 *.pyc
 venv/
 .env
+.env.local
+.env.*.local
 
 # Node.js
 node_modules/
 npm-debug.log*
+
+# SSL Certificates (DO NOT COMMIT PRIVATE KEYS!)
+deployment/ssl-certs/
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
 
 # Downloaded ML models 
 backend/models/*
