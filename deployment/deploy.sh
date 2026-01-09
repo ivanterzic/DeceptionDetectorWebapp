@@ -172,6 +172,7 @@ setup_frontend() {
     # Clean up old dependencies to prevent conflicts
     print_info "Cleaning up old dependencies..."
     rm -rf node_modules package-lock.json
+    npm cache clean --force
     
     # Install dependencies
     npm install
