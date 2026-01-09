@@ -18,7 +18,7 @@ mkdir -p "$LOG_DIR"
 cd "$APP_DIR/backend"
 echo -e "${BLUE}Starting backend...${NC}"
 source venv/bin/activate
-nohup gunicorn \
+gunicorn \
     --workers 4 \
     --threads 2 \
     --timeout 300 \
@@ -29,8 +29,16 @@ nohup gunicorn \
     --daemon \
     --pid "$APP_DIR/backend.pid" \
     app:app
+
+if [ -f "$APP_DIR/backend.pid" ]; then
+    echo -e "${GREEN}Backend started (PID: $(cat $APP_DIR/backend.pid))${NC}"
+else
+    echo -e "${RED}Backend failed to start! Check logs:${NC}"
+    echo "  tail -n 50 $LOG_DIR/backend-error.log"
+    deactivate
+    exit 1
+fi
 deactivate
-echo -e "${GREEN}Backend started (PID: $(cat $APP_DIR/backend.pid))${NC}"
 
 # Start frontend
 cd "$APP_DIR/frontend"
