@@ -25,14 +25,8 @@ RestartSec=10
 StartLimitInterval=400
 StartLimitBurst=3
 
-# Security settings
+# Security settings (relaxed for compatibility)
 NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/deception-detector/backend/models
-ReadWritePaths=/opt/deception-detector/backend/custom_models
-ReadWritePaths=/opt/deception-detector/backend/base_models
 
 # Resource limits (adjust based on your server)
 MemoryLimit=8G
