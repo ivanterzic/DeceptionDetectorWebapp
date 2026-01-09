@@ -169,6 +169,10 @@ setup_frontend() {
     
     cd "$APP_DIR/frontend"
     
+    # Clean up old dependencies to prevent conflicts
+    print_info "Cleaning up old dependencies..."
+    rm -rf node_modules package-lock.json
+    
     # Install dependencies
     npm install
     
