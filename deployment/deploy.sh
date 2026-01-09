@@ -244,14 +244,56 @@ setup_nginx() {
     print_info "Setting up Nginx reverse proxy..."
     
     if [ -z "$DOMAIN" ]; then
-        read -p "Enter your domain name (e.g., deception-detector.com): " DOMAIN
+        read -p "Enter your domain name (e.g., deception-detector.com) or 'localhost' for local testing: " DOMAIN
     fi
     
-    # Copy nginx config
-    cp "$APP_DIR/deployment/nginx.conf" "/etc/nginx/sites-available/$APP_NAME"
+    # Create temporary HTTP-only config first
+    cat > "/etc/nginx/sites-available/$APP_NAME" << EOF
+# Deception Detector - Nginx Configuration (HTTP Only - Initial Setup)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN;
     
-    # Replace domain placeholder
-    sed -i "s/yourdomain.com/$DOMAIN/g" "/etc/nginx/sites-available/$APP_NAME"
+    # Let's Encrypt validation
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+    
+    # Max upload size
+    client_max_body_size 50M;
+    
+    # Logging
+    access_log /var/log/nginx/deception-detector-access.log;
+    error_log /var/log/nginx/deception-detector-error.log;
+    
+    # Frontend
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+    
+    # Backend API
+    location /api {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+}
+EOF
     
     # Enable site
     ln -sf "/etc/nginx/sites-available/$APP_NAME" "/etc/nginx/sites-enabled/$APP_NAME"
@@ -260,9 +302,10 @@ setup_nginx() {
     rm -f /etc/nginx/sites-enabled/default
     
     # Test nginx config
-    nginx -t
+    nginx -t && systemctl reload nginx
     
-    print_success "Nginx configured"
+    print_success "Nginx configured (HTTP only)"
+    print_info "Run setup_ssl to enable HTTPS after services are running"
 }
 
 # Function to setup SSL with Let's Encrypt
@@ -277,20 +320,33 @@ setup_ssl() {
         read -p "Enter your domain name: " DOMAIN
     fi
     
-    # Stop nginx temporarily
-    systemctl stop nginx
+    # Get certificate using webroot (nginx must be running)
+    certbot certonly --webroot -w /var/www/html -d "$DOMAIN" --email "$EMAIL" --agree-tos --non-interactive
     
-    # Get certificate
-    certbot certonly --standalone -d "$DOMAIN" --email "$EMAIL" --agree-tos --non-interactive
-    
-    # Start nginx
-    systemctl start nginx
+    if [ $? -eq 0 ]; then
+        print_info "Certificate obtained, updating nginx config to use HTTPS..."
+        
+        # Now apply the full HTTPS config
+        cp "$APP_DIR/deployment/nginx.conf" "/etc/nginx/sites-available/$APP_NAME"
+        sed -i "s/yourdomain.com/$DOMAIN/g" "/etc/nginx/sites-available/$APP_NAME"
+        
+        # Test and reload
+        if nginx -t; then
+            systemctl reload nginx
+            print_success "SSL certificate installed and HTTPS enabled"
+        else
+            print_error "Nginx config test failed, reverting to HTTP only"
+            return 1
+        fi
+    else
+        print_error "Failed to obtain SSL certificate"
+        print_warning "Your app is still accessible via HTTP"
+        return 1
+    fi
     
     # Setup auto-renewal
     systemctl enable certbot.timer
     systemctl start certbot.timer
-    
-    print_success "SSL certificate installed"
 }
 
 # Function to setup firewall
@@ -434,10 +490,18 @@ main() {
     setup_systemd_services
     setup_nginx
     
-    if [ -n "$DOMAIN" ] && [ -n "$EMAIL" ]; then
-        setup_ssl
+    # Optional SSL setup
+    if [ -n "$DOMAIN" ] && [ "$DOMAIN" != "localhost" ] && [ -n "$EMAIL" ]; then
+        read -p "Setup SSL certificate now? (y/n): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            setup_ssl
+        else
+            print_warning "Skipping SSL setup. Run manually later: sudo bash deployment/deploy.sh ssl"
+        fi
     else
-        print_warning "Skipping SSL setup. Run manually: sudo certbot --nginx -d yourdomain.com"
+        print_warning "Skipping SSL setup (no domain configured). App accessible via HTTP only."
+        print_info "To enable HTTPS later, run: sudo bash deployment/deploy.sh ssl"
     fi
     
     setup_firewall
@@ -445,6 +509,19 @@ main() {
     start_services
     display_summary
 }
+
+# Handle command line arguments
+if [ "$1" == "ssl" ]; then
+    # SSL-only mode
+    if [ -z "$DOMAIN" ]; then
+        read -p "Enter your domain name: " DOMAIN
+    fi
+    if [ -z "$EMAIL" ]; then
+        read -p "Enter your email for SSL certificate: " EMAIL
+    fi
+    setup_ssl
+    exit 0
+fi
 
 # Run main function
 main "$@"
