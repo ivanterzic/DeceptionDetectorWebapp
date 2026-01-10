@@ -64,6 +64,18 @@ setup_env() {
     fi
 }
 
+cleanup_containers() {
+    print_info "Cleaning up existing containers..."
+    
+    # Stop and remove existing containers
+    docker-compose down -v 2>/dev/null || true
+    
+    # Remove any orphaned containers
+    docker container prune -f
+    
+    print_success "Cleanup complete"
+}
+
 build_and_start() {
     print_info "Building Docker images (this may take several minutes)..."
     docker-compose build
@@ -108,6 +120,7 @@ main() {
     check_root
     check_docker
     setup_env
+    cleanup_containers
     build_and_start
     show_status
 }
