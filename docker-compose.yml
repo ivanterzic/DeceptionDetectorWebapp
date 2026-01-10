@@ -33,10 +33,7 @@ services:
           devices:
             - driver: nvidia
               count: 1         
-              capabilities: [gpu]
-              # GPU memory limit 
-              options:
-                - memory=4G                 
+              capabilities: [gpu]                 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
