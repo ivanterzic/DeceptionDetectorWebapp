@@ -51,7 +51,11 @@ DEBUG_MODE = True
 # CORS allowed origins - restrict to localhost for development
 # For production, change to your domain: ['https://yourdomain.com']
 ALLOWED_ORIGINS = [
-    'http://localhost:8080',
+    'http://localhost',       # Nginx default port
+    'http://localhost:80',    # Nginx explicit
+    'http://localhost:8080',  # Frontend direct
+    'http://127.0.0.1',
+    'http://127.0.0.1:80',
     'http://127.0.0.1:8080',
     'http://localhost:3000',  # Alternative dev port
     'http://127.0.0.1:3000'

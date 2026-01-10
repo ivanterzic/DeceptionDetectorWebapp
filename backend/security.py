@@ -69,8 +69,11 @@ def rate_limit(limit=10, window=60):
     def decorator(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
-            # Use IP address as identifier
-            identifier = request.remote_addr
+            # Get real IP address from proxy headers (nginx forwards X-Real-IP)
+            # Fall back to remote_addr if not behind proxy
+            identifier = request.headers.get('X-Real-IP') or \
+                        request.headers.get('X-Forwarded-For', '').split(',')[0].strip() or \
+                        request.remote_addr
             
             if not rate_limiter.is_allowed(identifier, limit, window):
                 return jsonify({

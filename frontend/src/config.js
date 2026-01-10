@@ -1,5 +1,9 @@
 // Default API base URL - can be overridden by environment variables
-const DEFAULT_API_BASE_URL = 'http://localhost:5000/api'
+// Use relative path for production (goes through nginx proxy)
+// Use localhost:5000 for development direct access
+const DEFAULT_API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'  // Relative path - goes through nginx
+  : 'http://localhost:5000/api'  // Direct access for dev
 
 // Get API base URL from environment variable or use default
 export const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || DEFAULT_API_BASE_URL

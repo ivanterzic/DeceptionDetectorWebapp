@@ -51,6 +51,16 @@ def register_routes(app):
     # Register training routes
     register_training_routes(app)
 
+    # ===================== HEALTH CHECK =====================
+
+    @app.route('/api/health', methods=['GET'])
+    def health_check():
+        """Health check endpoint for Docker and monitoring."""
+        return jsonify({
+            'status': 'healthy',
+            'service': 'deception-detector-backend'
+        }), 200
+
     # ===================== PUBLIC API - JWT Auth =====================
 
     @app.route('/api/auth/token', methods=['POST'])

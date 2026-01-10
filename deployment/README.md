@@ -1,235 +1,455 @@
-# Deployment Guide
+# Deception Detector - Docker Deployment Guide
 
-Linux deployment with HTTPS for Ubuntu/Debian/CentOS.
-
-## SSH Setup
-
-First, ensure you can SSH into your server:
 
 ```bash
-# Test SSH connection
-ssh user@your-server
-
-# If using a key file
-ssh -i /path/to/key.pem user@your-server
-
-# For AWS/cloud instances, the user is often:
-# - ubuntu@ip-address (Ubuntu)
-# - ec2-user@ip-address (Amazon Linux)
-# - root@ip-address (most VPS)
+cd ~/deception-detector/webapp
+sudo bash deployment/docker-deploy.sh
 ```
+The script will:
+- Install Docker and Docker Compose
+- Create environment files
+- Build Docker images
+- Start all containers
 
-## Quick Deploy
+### 3. Access Application
 
-```bash
-# From your local machine, upload the webapp
-cd /path/to/DeceptionDetector/webapp
-scp -r . user@your-server:/tmp/webapp/
-
-# If using a key file
-scp -i /path/to/key.pem -r . user@your-server:/tmp/webapp/
-
-# SSH into server and deploy
-ssh user@your-server
-cd /tmp/webapp/deployment
-chmod +x deploy.sh
-sudo ./deploy.sh
-```
-
-Enter your domain and email when prompted for automatic HTTPS setup via Let's Encrypt.
-
-## Files
-
-- **deploy.sh** - Complete deployment with HTTPS
-- **nginx.conf** - Nginx reverse proxy configuration
-- **deception-detector-backend.service** - Backend systemd service
-- **deception-detector-frontend.service** - Frontend systemd service
-- **health-check.sh** - Health monitoring
-- **update.sh** - Quick updates
-
-## What Gets Installed
-
-- Python 3, Node.js, Nginx
-- Backend with Gunicorn WSGI server
-- Frontend with Express server
-- SSL certificate (Let's Encrypt)
-- Systemd services for auto-start
-- Firewall configuration
-
-## Architecture
-
-```
-Internet → Nginx (:443 HTTPS) → Backend (:5000) or Frontend (:8080)
-```
-
-## Post-Deployment
-
-1. Edit `/opt/deception-detector/backend/.env` with your API credentials
-2. Restart services: `sudo systemctl restart deception-detector-{backend,frontend}`
-3. View logs: `journalctl -u deception-detector-backend -f`
-4. Access your app at `https://yourdomain.com`
-
-## Configuration Files
-
-### Backend (.env)
-
-Located at `/opt/deception-detector/backend/.env`
-
-**Critical settings:**
-- `FLASK_ENV=production`
-- `DEBUG_MODE=False`
-- `ALLOWED_ORIGINS` - Set to your domain
-- `JWT_SECRET` - Strong random secret
-- `API_USERNAME` / `API_PASSWORD` - API credentials
-
-### Nginx
-
-Located at `/etc/nginx/sites-available/deception-detector`
-
-**Update:**
-- Replace `yourdomain.com` with your actual domain
-- SSL certificate paths (auto-configured by certbot)
-
-## Service Management
-
-```bash
-# Backend
-sudo systemctl start|stop|restart|status deception-detector-backend
-
-# Frontend
-sudo systemctl start|stop|restart|status deception-detector-frontend
-
-# Nginx
-sudo systemctl start|stop|restart|reload|status nginx
-
-# View logs
-sudo journalctl -u deception-detector-backend -f
-sudo journalctl -u deception-detector-frontend -f
-```
-
-## Updating the Application
-
-```bash
-# Quick update
-cd /opt/deception-detector/deployment
-sudo ./update.sh
-
-# Or manually
-sudo systemctl stop deception-detector-backend deception-detector-frontend
-# Update code
-cd /opt/deception-detector
-# ... update files ...
-sudo systemctl start deception-detector-backend deception-detector-frontend
-```
-
-## Monitoring
-
-### Health Checks
-
-```bash
-# Run health check
-sudo /opt/deception-detector/deployment/health-check.sh
-
-# Add to cron for regular monitoring (every 5 minutes)
-*/5 * * * * /opt/deception-detector/deployment/health-check.sh >> /var/log/deception-detector/health.log 2>&1
-```
-
-### Logs
-
-```bash
-# Backend logs
-sudo journalctl -u deception-detector-backend -f
-
-# Frontend logs  
-sudo journalctl -u deception-detector-frontend -f
-
-# Nginx access log
-sudo tail -f /var/log/nginx/deception-detector-access.log
-
-# Nginx error log
-sudo tail -f /var/log/nginx/deception-detector-error.log
-
-# Application logs
-sudo tail -f /var/log/deception-detector/backend-access.log
-sudo tail -f /var/log/deception-detector/backend-error.log
-```
-
-## Troubleshooting
-
-### Services Won't Start
-
-```bash
-# Check logs
-sudo journalctl -u deception-detector-backend -n 50 --no-pager
-sudo journalctl -u deception-detector-frontend -n 50 --no-pager
-
-# Check if ports are in use
-sudo netstat -tlnp | grep :5000
-sudo netstat -tlnp | grep :8080
-
-# Check file permissions
-ls -la /opt/deception-detector/backend/.env
-```
-
-### 502 Bad Gateway
-
-Backend or frontend not responding:
-
-```bash
-# Restart services
-sudo systemctl restart deception-detector-backend
-sudo systemctl restart deception-detector-frontend
-
-# Check they're listening
-curl http://127.0.0.1:5000/api/models
-curl http://127.0.0.1:8080/
-```
-
-### SSL Certificate Issues
-
-```bash
-# Check certificate status
-sudo certbot certificates
-
-# Renew manually
-sudo certbot renew
-
-# Test auto-renewal
-sudo certbot renew --dry-run
-```
-
-## Security Checklist
-
-- [ ] Debug mode disabled
-- [ ] Strong JWT secret configured
-- [ ] API credentials set
-- [ ] CORS restricted to your domain
-- [ ] Firewall configured (ports 80, 443 open; 5000, 8080 blocked)
-- [ ] SSL certificate installed
-- [ ] .env file permissions set to 600
-- [ ] Regular backups configured
-- [ ] SSH key authentication enabled
-- [ ] Root SSH login disabled
-
-## Backup
-
-```bash
-# Manual backup
-sudo tar -czf /backup/deception-detector-$(date +%Y%m%d).tar.gz \
-  /opt/deception-detector/backend/.env \
-  /opt/deception-detector/backend/models \
-  /opt/deception-detector/backend/custom_models
-
-# Automated backup (add to crontab)
-0 2 * * * /opt/backup-deception.sh
-```
-
-## Support
-
-- **Documentation**: See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-- **Logs**: Always check logs first for error details
-- **Health**: Run `health-check.sh` to verify system status
+- **HTTP:** `http://your-server-ip` or `http://localhost`
+- **Frontend:** Port 8080
+- **Backend:** Port 5000
 
 ---
 
-**Ready to deploy?** Start with `check-ready.sh` to validate your setup!
+## Configuration
+
+### Backend Configuration
+
+Edit the environment file:
+
+```bash
+nano ~/deception-detector/webapp/backend/.env
+```
+
+Required settings:
+
+```bash
+API_USERNAME=your_username
+API_PASSWORD=your_secure_password
+JWT_SECRET=generated_secret
+DEBUG_MODE=False
+ALLOWED_ORIGINS=http://your-domain.com,http://localhost
+```
+
+After editing, restart containers:
+
+```bash
+cd ~/deception-detector/webapp
+docker-compose restart backend
+```
+
+---
+
+## Docker Commands
+
+### View Status
+
+```bash
+cd ~/deception-detector/webapp
+docker-compose ps
+```
+
+### View Logs
+
+```bash
+# All containers
+docker-compose logs -f
+
+# Specific container
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f nginx
+```
+
+### Start/Stop/Restart
+
+```bash
+# Start all
+docker-compose start
+
+# Stop all
+docker-compose stop
+
+# Restart all
+docker-compose restart
+
+# Restart specific service
+docker-compose restart backend
+```
+
+### Rebuild After Changes
+
+```bash
+# Rebuild and restart
+docker-compose up -d --build
+
+# Rebuild specific service
+docker-compose up -d --build backend
+```
+
+### Remove Everything
+
+```bash
+# Stop and remove containers
+docker-compose down
+
+# Remove containers and volumes
+docker-compose down -v
+
+# Remove containers, volumes, and images
+docker-compose down -v --rmi all
+```
+
+---
+
+## Enabling HTTPS
+
+### Option 1: With Domain Name (Recommended)
+
+**Prerequisites:**
+1. Domain name pointing to your server
+2. Ports 80 and 443 open in firewall
+3. Containers running
+
+**Setup:**
+```bash
+cd ~/deception-detector/webapp
+sudo bash deployment/docker-setup-ssl.sh
+```
+
+Follow the prompts to:
+- Enter your domain name
+- Enter your email address
+
+The script will:
+- Obtain SSL certificate from Let's Encrypt
+- Update nginx configuration
+- Enable HTTPS
+
+**Certificate Renewal:**
+
+Certificates auto-renew via certbot's systemd timer. To manually renew:
+
+```bash
+sudo certbot renew
+docker-compose restart nginx
+```
+
+---
+
+### Option 2: With IP Address (Self-Signed Certificate)
+
+**When to use:**
+- Don't have a domain name
+- Testing/development environments
+- Internal networks
+
+**⚠️ Important Notes:**
+- Browsers will show security warnings
+- Users must manually accept the certificate
+- Not recommended for production
+- Consider using a cheap domain ($1-2/year) with Let's Encrypt instead
+
+**Setup:**
+
+```bash
+cd ~/deception-detector/webapp/deployment
+sudo bash setup-ip-ssl.sh
+```
+
+Follow the prompts:
+1. Enter your server's IP address
+2. Confirm you understand about browser warnings
+
+The script will:
+- Generate a 2048-bit RSA private key
+- Create a self-signed certificate (valid 365 days)
+- Configure nginx for HTTPS
+- Update docker-compose.yml automatically
+
+**Manual Setup (if script fails):**
+
+If the script doesn't auto-update docker-compose.yml:
+
+```bash
+cd ~/deception-detector/webapp
+nano docker-compose.yml
+```
+
+Update the nginx volumes section:
+```yaml
+nginx:
+  volumes:
+    - ./deployment/nginx-docker-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+    - ./deployment/ssl:/etc/nginx/ssl:ro
+```
+
+Then restart:
+```bash
+docker-compose restart nginx
+```
+
+**Accessing with Self-Signed Certificate:**
+
+1. Navigate to `https://YOUR_IP`
+2. Browser shows "Your connection is not private" warning
+3. Click "Advanced" or "Details"
+4. Click "Proceed to [IP] (unsafe)" or "Accept the Risk"
+5. Application will load normally
+
+**Certificate Renewal:**
+
+Self-signed certificates expire after 365 days. To renew:
+
+```bash
+cd ~/deception-detector/webapp/deployment
+sudo bash setup-ip-ssl.sh
+# Enter same IP address
+docker-compose restart nginx
+```
+
+---
+
+## Monitoring
+
+### Check Container Health
+
+```bash
+docker-compose ps
+```
+
+Healthy containers show "Up" status.
+
+### Resource Usage
+
+```bash
+# All containers
+docker stats
+
+# Specific container
+docker stats deception-detector-backend
+```
+
+### Access Container Shell
+
+```bash
+# Backend
+docker exec -it deception-detector-backend bash
+
+# Frontend
+docker exec -it deception-detector-frontend sh
+
+# Nginx
+docker exec -it deception-detector-nginx sh
+```
+
+### Test API
+
+```bash
+# Health check
+curl http://localhost:5000/api/health
+
+# Through nginx
+curl http://localhost/api/health
+```
+
+---
+
+## Troubleshooting
+
+### Containers Won't Start
+
+**Check logs:**
+```bash
+docker-compose logs backend
+docker-compose logs frontend
+```
+
+**Common issues:**
+- Port already in use
+- Missing .env file
+- Build failures
+
+### Port Conflicts
+
+**Check what's using a port:**
+```bash
+sudo lsof -i :5000
+sudo lsof -i :8080
+sudo lsof -i :80
+```
+
+**Stop conflicting service:**
+```bash
+sudo systemctl stop service-name
+```
+
+### Backend Import Errors
+
+**Access backend container:**
+```bash
+docker exec -it deception-detector-backend bash
+cd /app
+python -c "import app"
+```
+
+### Rebuild from Scratch
+
+```bash
+cd ~/deception-detector/webapp
+
+# Stop and remove everything
+docker-compose down -v
+
+# Rebuild
+docker-compose up -d --build
+
+# Check logs
+docker-compose logs -f
+```
+
+### Disk Space Issues
+
+**Check Docker disk usage:**
+```bash
+docker system df
+```
+
+**Clean up:**
+```bash
+# Remove unused containers, networks, images
+docker system prune
+
+# Remove everything including volumes
+docker system prune -a --volumes
+```
+
+---
+
+## Updating
+
+### Update Application Code
+
+```bash
+cd ~/deception-detector/webapp
+
+# Pull new code or upload new files
+# Then rebuild
+
+docker-compose down
+docker-compose up -d --build
+```
+
+### Update Single Service
+
+```bash
+cd ~/deception-detector/webapp
+
+# Update backend
+docker-compose up -d --build backend
+
+# Update frontend
+docker-compose up -d --build frontend
+```
+
+### Update Docker Images
+
+```bash
+# Pull latest base images
+docker-compose pull
+
+# Rebuild
+docker-compose up -d --build
+```
+
+---
+
+## Auto-Start on Reboot
+
+Docker containers with `restart: unless-stopped` will automatically start after reboot if Docker service starts.
+
+**Ensure Docker starts on boot:**
+```bash
+sudo systemctl enable docker
+```
+
+---
+
+## Backup and Restore
+
+### Backup Models
+
+```bash
+cd ~/deception-detector/webapp
+tar -czf models-backup.tar.gz backend/models backend/custom_models backend/base_models
+```
+
+### Restore Models
+
+```bash
+cd ~/deception-detector/webapp
+tar -xzf models-backup.tar.gz
+docker-compose restart backend
+```
+
+---
+
+## Production Checklist
+
+- [ ] Change API credentials in `.env`
+- [ ] Set `DEBUG_MODE=False`
+- [ ] Configure `ALLOWED_ORIGINS` properly
+- [ ] Enable HTTPS
+  - With domain: Run `docker-setup-ssl.sh`
+  - With IP only: Run `setup-ip-ssl.sh` (shows browser warnings)
+- [ ] Set up firewall (allow ports 80, 443)
+- [ ] Configure automatic backups
+- [ ] Monitor logs regularly
+- [ ] Set up monitoring/alerting
+
+---
+
+## Useful Commands Summary
+
+```bash
+# Deploy
+sudo bash deployment/docker-deploy.sh
+
+# View logs
+docker-compose logs -f
+
+# Status
+docker-compose ps
+
+# Restart
+docker-compose restart
+
+# Stop
+docker-compose stop
+
+# Start
+docker-compose start
+
+# Rebuild
+docker-compose up -d --build
+
+# Enable HTTPS (domain)
+sudo bash deployment/docker-setup-ssl.sh
+
+# Enable HTTPS (IP address)
+sudo bash deployment/setup-ip-ssl.sh
+
+# Shell access
+docker exec -it deception-detector-backend bash
+
+# Clean up
+docker system prune
+```

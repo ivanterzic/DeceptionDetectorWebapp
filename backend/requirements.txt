@@ -1,6 +1,5 @@
 flask
 flask-cors
-torch
 transformers
 lime
 shap
@@ -12,3 +11,5 @@ accelerate
 schedule
 PyJWT
 python-dotenv
+protobuf
+sentencepiece

@@ -1,0 +1,42 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model cache (keep structure but not cached files)
+base_models/*/
+!base_models/cache_info.json
+
+# Trained models (too large for Docker context)
+models/
+custom_models/
+
+# Temporary files
+*.tmp
+*.temp
+nohup.out
