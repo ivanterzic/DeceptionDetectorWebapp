@@ -85,7 +85,10 @@ def get_cached_model(model_key: str) -> pipeline:
         ValueError: If model is not preloaded
     """
     if model_key not in _model_cache:
-        raise ValueError(f"Model {model_key} not preloaded. Please preload models at startup.")
+        # Load on demand if not preloaded
+        from model_utils import get_model_path
+        model_path = get_model_path(model_key)
+        preload_model(model_key, model_path, True)
     return _model_cache[model_key]
 
 

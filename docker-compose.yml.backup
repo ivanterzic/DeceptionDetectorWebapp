@@ -5,6 +5,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 0
     container_name: deception-detector-backend
     restart: unless-stopped
     ports:
@@ -33,10 +35,7 @@ services:
           devices:
             - driver: nvidia
               count: 1         
-              capabilities: [gpu]
-              # GPU memory limit 
-              options:
-                - memory=4G                 
+              capabilities: [gpu]                 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -50,6 +49,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 0
     container_name: deception-detector-frontend
     restart: unless-stopped
     ports:

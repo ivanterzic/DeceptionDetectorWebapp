@@ -338,7 +338,7 @@ class ModelTrainer:
                 'logging_steps': 10,
                 'save_strategy': "epoch",
                 'save_total_limit': 2,
-                'report_to': None  # Disable wandb
+                'report_to': "none"  # Disable tracking integrations
             }
             
             # Add evaluation settings only if we have validation data
@@ -360,7 +360,6 @@ class ModelTrainer:
                 args=training_args,
                 train_dataset=train_dataset,
                 eval_dataset=val_dataset,  # Will be None if no validation data
-                tokenizer=tokenizer,
                 data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
                 compute_metrics=compute_metrics if val_dataset is not None else None,
             )

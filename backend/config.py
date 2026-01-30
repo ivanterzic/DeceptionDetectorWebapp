@@ -16,21 +16,40 @@ CLASS_NAMES = ['deceptive', 'truthful']
 MODELS_DIR = Path(__file__).parent / 'models'
 BASE_MODELS_DIR = Path(__file__).parent / 'base_models'
 
+# Default pretrained model list (used when models.txt isn't available)
+DEFAULT_MODEL_LIST = [
+    'neurips-user/neurips-bert-covid-1',
+    'neurips-user/neurips-bert-climate-change-1',
+    'neurips-user/neurips-bert-combined-1',
+    'neurips-user/neurips-deberta-covid-1',
+    'neurips-user/neurips-deberta-climate-change-1',
+    'neurips-user/neurips-deberta-combined-1',
+]
+
 def get_available_models():
     """Dynamically discover available models from the models directory and models.txt"""
     available_models = {}
     
     # First, try to read from models.txt to get the mapping
-    models_file = Path(__file__).parent.parent / 'models.txt'
-    if models_file.exists():
+    models_file_candidates = [
+        Path(__file__).parent / 'models.txt',
+        Path(__file__).parent.parent / 'models.txt',
+    ]
+    models_file = next((p for p in models_file_candidates if p.exists()), None)
+    if models_file:
         with open(models_file, 'r') as f:
             model_lines = [line.strip() for line in f.readlines() if line.strip()]
-        
-        for model_name in model_lines:
-            # Extract local name from model path
-            local_name = model_name.replace('neurips-user/', '').replace('neurips-', '')
-            model_path = MODELS_DIR / local_name
-            available_models[local_name] = model_path
+    else:
+        model_lines = DEFAULT_MODEL_LIST
+
+    for model_name in model_lines:
+        # Extract local name from model path
+        local_name = model_name.replace('neurips-user/', '').replace('neurips-', '')
+        model_path = MODELS_DIR / local_name
+        available_models[local_name] = {
+            'path': model_path,
+            'hf_id': model_name,
+        }
     
     # Also scan the models directory for any existing models
     if MODELS_DIR.exists():
@@ -38,7 +57,12 @@ def get_available_models():
             if model_dir.is_dir() and any(model_dir.iterdir()):
                 local_name = model_dir.name
                 if local_name not in available_models:
-                    available_models[local_name] = model_dir
+                    available_models[local_name] = {
+                        'path': model_dir,
+                        'hf_id': None,
+                    }
+                else:
+                    available_models[local_name]['path'] = model_dir
     
     return available_models
 
