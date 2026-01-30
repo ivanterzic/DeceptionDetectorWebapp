@@ -182,52 +182,54 @@ _base_model_download_lock = threading.Lock()
 _base_model_downloaded = False
 
 def download_base_models_async():
-    """Download base models in background to not block API startup."""
-    global _base_model_downloaded
-    import time
-    time.sleep(2)  # Give API time to start first
+    # """Download base models in background to not block API startup."""
+    # global _base_model_downloaded
+    # import time
+    # time.sleep(2)  # Give API time to start first
     
-    # Only one worker should download
-    if not _base_model_download_lock.acquire(blocking=False):
-        return  # Another worker is already downloading
+    # # Only one worker should download
+    # if not _base_model_download_lock.acquire(blocking=False):
+    #     return  # Another worker is already downloading
     
-    try:
-        if _base_model_downloaded:
-            return
+    # try:
+    #     if _base_model_downloaded:
+    #         return
             
-        from base_model_cache import get_cache_statistics, download_all_recommended_models
-        stats = get_cache_statistics()
-        if stats['recommended_cached'] < stats['recommended_total']:
-            print(f"📦 [Background] Downloading {stats['recommended_total'] - stats['recommended_cached']} missing base models...")
-            download_all_recommended_models()
-            print("✅ [Background] Base models downloaded")
-        else:
-            print(f"✅ All {stats['recommended_total']} base models already cached")
-        _base_model_downloaded = True
-    except Exception as e:
-        print(f"⚠️ [Background] Could not download base models: {str(e)}")
-        print("   Base models will be downloaded on-demand during training")
-    finally:
-        _base_model_download_lock.release()
+    #     from base_model_cache import get_cache_statistics, download_all_recommended_models
+    #     stats = get_cache_statistics()
+    #     if stats['recommended_cached'] < stats['recommended_total']:
+    #         print(f"📦 [Background] Downloading {stats['recommended_total'] - stats['recommended_cached']} missing base models...")
+    #         download_all_recommended_models()
+    #         print("✅ [Background] Base models downloaded")
+    #     else:
+    #         print(f"✅ All {stats['recommended_total']} base models already cached")
+    #     _base_model_downloaded = True
+    # except Exception as e:
+    #     print(f"⚠️ [Background] Could not download base models: {str(e)}")
+    #     print("   Base models will be downloaded on-demand during training")
+    # finally:
+    #     _base_model_download_lock.release()
+    pass
 
 base_model_thread = threading.Thread(target=download_base_models_async, daemon=True)
 base_model_thread.start()
 
 # Preload trained models for inference
-preload_all_models()
+#preload_all_models()
 
 # Start cleanup service for custom models
 from cleanup_service import cleanup_service
 cleanup_service.start()
 print("✅ Deception Detector API ready")
+print("🚀 Starting Deception Detector API (development mode)")
+print(f"🌐 Server ready to start on http://{API_HOST}:{API_PORT}")
 
+app.run(debug=DEBUG_MODE, host=API_HOST, port=API_PORT)
 
-def main():
-    print("🚀 Starting Deception Detector API (development mode)")
-    print(f"🌐 Server ready to start on http://{API_HOST}:{API_PORT}")
+# def main():
+#     pass
     
-    app.run(debug=DEBUG_MODE, host=API_HOST, port=API_PORT)
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
