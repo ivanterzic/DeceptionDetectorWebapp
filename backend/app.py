@@ -186,6 +186,10 @@ def download_base_models_async():
     # global _base_model_downloaded
     # import time
     # time.sleep(2)  # Give API time to start first
+    # """Download base models in background to not block API startup."""
+    # global _base_model_downloaded
+    # import time
+    # time.sleep(2)  # Give API time to start first
     
     # # Only one worker should download
     # if not _base_model_download_lock.acquire(blocking=False):
@@ -195,6 +199,21 @@ def download_base_models_async():
     #     if _base_model_downloaded:
     #         return
             
+    #     from base_model_cache import get_cache_statistics, download_all_recommended_models
+    #     stats = get_cache_statistics()
+    #     if stats['recommended_cached'] < stats['recommended_total']:
+    #         print(f"📦 [Background] Downloading {stats['recommended_total'] - stats['recommended_cached']} missing base models...")
+    #         download_all_recommended_models()
+    #         print("✅ [Background] Base models downloaded")
+    #     else:
+    #         print(f"✅ All {stats['recommended_total']} base models already cached")
+    #     _base_model_downloaded = True
+    # except Exception as e:
+    #     print(f"⚠️ [Background] Could not download base models: {str(e)}")
+    #     print("   Base models will be downloaded on-demand during training")
+    # finally:
+    #     _base_model_download_lock.release()
+    pass
     #     from base_model_cache import get_cache_statistics, download_all_recommended_models
     #     stats = get_cache_statistics()
     #     if stats['recommended_cached'] < stats['recommended_total']:
