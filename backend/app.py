@@ -128,7 +128,7 @@ def preload_all_models():
     print(f"🎉 Model preloading completed in {end_time - start_time:.2f}s ({successful_models}/{len(AVAILABLE_MODELS)} models)")
     
     # Also preload explainers
-    preload_explainers()
+    #preload_explainers()
 
 
 def create_app():
