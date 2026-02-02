@@ -86,9 +86,9 @@ ALLOWED_ORIGINS = [
 ]
 
 # Rate limiting settings (requests per minute)
-RATE_LIMIT_ANALYSIS = 20  # Text analysis endpoint
-RATE_LIMIT_TRAINING = 5   # Model training endpoint
-RATE_LIMIT_DEFAULT = 60   # Other endpoints
+RATE_LIMIT_ANALYSIS = 30  # Text analysis endpoint
+RATE_LIMIT_TRAINING = 30   # Model training endpoint
+RATE_LIMIT_DEFAULT = 120   # Other endpoints
 
 # JWT / Public API settings (development defaults; override with env vars)
 JWT_SECRET = os.environ.get('JWT_SECRET', 'dev_jwt_secret_change_me')
