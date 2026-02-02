@@ -60,6 +60,7 @@ prompt = no
 default_md = sha256
 distinguished_name = dn
 req_extensions = v3_req
+x509_extensions = v3_req
 
 [dn]
 C=US
@@ -70,7 +71,8 @@ OU=Department
 CN=$IP_ADDRESS
 
 [v3_req]
-keyUsage = keyEncipherment, dataEncipherment
+basicConstraints = CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment, dataEncipherment
 extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 

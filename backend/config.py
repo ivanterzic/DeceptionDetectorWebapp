@@ -86,8 +86,8 @@ ALLOWED_ORIGINS = [
 ]
 
 # Rate limiting settings (requests per minute)
-RATE_LIMIT_ANALYSIS = 30  # Text analysis endpoint
-RATE_LIMIT_TRAINING = 30   # Model training endpoint
+RATE_LIMIT_ANALYSIS = 60  # Text analysis endpoint
+RATE_LIMIT_TRAINING = 60   # Model training endpoint
 RATE_LIMIT_DEFAULT = 120   # Other endpoints
 
 # JWT / Public API settings (development defaults; override with env vars)
