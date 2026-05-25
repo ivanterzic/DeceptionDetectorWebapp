@@ -68,21 +68,21 @@ def get_available_models():
 
 AVAILABLE_MODELS = get_available_models()
 
-API_HOST = '0.0.0.0'
-API_PORT = 5000
-DEBUG_MODE = True
+API_HOST = os.environ.get('API_HOST', '0.0.0.0')
+API_PORT = int(os.environ.get('API_PORT', 5000))
+DEBUG_MODE = os.environ.get('DEBUG_MODE', 'True').lower() not in ('false', '0', 'no')
 
-# CORS allowed origins - restrict to localhost for development
-# For production, change to your domain: ['https://yourdomain.com']
-ALLOWED_ORIGINS = [
-    'http://localhost',       # Nginx default port
-    'http://localhost:80',    # Nginx explicit
-    'http://localhost:8080',  # Frontend direct
+# CORS allowed origins - read from env (comma-separated) with safe localhost defaults
+_cors_env = os.environ.get('ALLOWED_ORIGINS', '')
+ALLOWED_ORIGINS = [o.strip() for o in _cors_env.split(',') if o.strip()] or [
+    'http://localhost',
+    'http://localhost:80',
+    'http://localhost:8080',
     'http://127.0.0.1',
     'http://127.0.0.1:80',
     'http://127.0.0.1:8080',
-    'http://localhost:3000',  # Alternative dev port
-    'http://127.0.0.1:3000'
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
 ]
 
 # Rate limiting settings (requests per minute)
@@ -90,10 +90,19 @@ RATE_LIMIT_ANALYSIS = 60  # Text analysis endpoint
 RATE_LIMIT_TRAINING = 60   # Model training endpoint
 RATE_LIMIT_DEFAULT = 120   # Other endpoints
 
-# JWT / Public API settings (development defaults; override with env vars)
-JWT_SECRET = os.environ.get('JWT_SECRET', 'dev_jwt_secret_change_me')
+# JWT / Public API settings (override with env vars — REQUIRED in production)
+_DEFAULT_JWT_SECRET = 'dev_jwt_secret_change_me'
+JWT_SECRET = os.environ.get('JWT_SECRET', _DEFAULT_JWT_SECRET)
 JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM', 'HS256')
 JWT_EXP_SECONDS = int(os.environ.get('JWT_EXP_SECONDS', 3600))
+
+# Refuse to start with the default development secret in production
+_flask_env = os.environ.get('FLASK_ENV', 'development')
+if _flask_env == 'production' and JWT_SECRET == _DEFAULT_JWT_SECRET:
+    raise RuntimeError(
+        'FATAL: JWT_SECRET is not set (or is the default development value). '
+        'Set a strong random secret in backend/.env before running in production.'
+    )
 
 # API user credentials
 # REQUIRED: Must be set via environment variables - no defaults for security

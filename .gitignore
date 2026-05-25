@@ -14,11 +14,18 @@ npm-debug.log*
 # SSL Certificates (DO NOT COMMIT PRIVATE KEYS!)
 deployment/ssl-certs/
 *.pem
+*.pem.backup
 *.key
 *.crt
 *.csr
 *.p12
 *.pfx
+
+# Machine-specific deployment scripts (contain host paths/references)
+deployment/setup-duckdns-ssl.sh
+
+# Internal co-deployment notes (machine-specific, not for public repo)
+deployment/SHARED_PROXY_NOTES.md
 
 # Downloaded ML models 
 backend/models/*

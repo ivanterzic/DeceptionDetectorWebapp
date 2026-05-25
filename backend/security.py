@@ -10,6 +10,7 @@ from threading import Lock
 import jwt
 import datetime
 import hashlib
+import hmac
 from config import JWT_SECRET, JWT_ALGORITHM, JWT_EXP_SECONDS, API_USERNAME, API_PASSWORD
 
 # Constants
@@ -382,9 +383,11 @@ def authenticate_user(username: str, password_hash: str):
     
     # Compute expected hash from stored plain password
     expected_hash = hashlib.sha256(API_PASSWORD.encode()).hexdigest()
-    
-    # Check username and password hash match
-    if username != API_USERNAME or password_hash.lower() != expected_hash.lower():
+
+    # Use constant-time comparison to prevent timing attacks
+    username_ok = hmac.compare_digest(username, API_USERNAME)
+    hash_ok = hmac.compare_digest(password_hash.lower(), expected_hash.lower())
+    if not (username_ok and hash_ok):
         return False, 'Invalid credentials'
     
     # Create token with username as subject

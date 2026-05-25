@@ -1,4 +1,4 @@
-﻿# Production Deployment & Security Checklist
+# Production Deployment & Security Checklist
 
 **Last Updated:** December 30, 2025
 
@@ -43,13 +43,13 @@ sudo ./deploy.sh
 ```
 
 The automated script handles:
-- ✅ System dependencies installation
-- ✅ Python/Node.js environment setup
-- ✅ Systemd service configuration
-- ✅ Nginx reverse proxy with SSL
-- ✅ Firewall configuration
-- ✅ File permissions
-- ✅ Service startup
+-  System dependencies installation
+-  Python/Node.js environment setup
+-  Systemd service configuration
+-  Nginx reverse proxy with SSL
+-  Firewall configuration
+-  File permissions
+-  Service startup
 
 See [deployment/DEPLOYMENT_GUIDE.md](../deployment/DEPLOYMENT_GUIDE.md) for detailed instructions.
 
@@ -110,6 +110,8 @@ export default {
 All these are handled by the deployment script, but verify manually:
 
 ### 1. HTTPS/SSL Certificate
+
+Production URL: `${PRODUCTION_URL}` *(configure `PRODUCTION_URL` in `backend/.env`)*
 
 ```bash
 # Automated by deploy.sh or manually:

@@ -1,0 +1,78 @@
+# Production compose for use behind a shared reverse proxy.
+# Differences from docker-compose.yml:
+#   - No nginx service (traffic handled by a shared reverse proxy on shared-proxy network)
+#   - No exposed host ports (backend/frontend are internal only)
+#   - Both services join shared-proxy so the reverse proxy can reach them by container name
+#
+# See deployment/SHARED_PROXY_NOTES.md for the full host-specific setup.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 0
+    container_name: deception-detector-backend
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/models:/app/models
+      - ./backend/custom_models:/app/custom_models
+      - ./backend/base_models:/app/base_models
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 6G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - deception-network
+      - shared-proxy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 0
+    container_name: deception-detector-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - deception-network
+      - shared-proxy
+
+networks:
+  deception-network:
+    driver: bridge
+  shared-proxy:
+    external: true

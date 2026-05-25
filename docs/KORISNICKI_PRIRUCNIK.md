@@ -34,11 +34,11 @@ Ovaj priručnik pruža upute za korištenje **Deception Detector** aplikacije - 
 
 ### 2.2 Glavne mogućnosti
 
-✅ **Analiza teksta** - Analizirajte bilo koji tekst do 1300 znakova  
-✅ **Više modela** - Odaberite između 6 pretreniranih modela  
-✅ **Vlastiti modeli** - Trenirajte modele na vlastitim podatcima  
-✅ **Objašnjenja odluke** - Razumijte zašto je tekst označen kao vjerodostojan ili obmanjujući  
-✅ **Jednostavno dijeljenje** - Dijelite vlastite modele pomoću 6-znamenkastog koda
+ **Analiza teksta** - Analizirajte bilo koji tekst do 1300 znakova  
+ **Više modela** - Odaberite između 6 pretreniranih modela  
+ **Vlastiti modeli** - Trenirajte modele na vlastitim podatcima  
+ **Objašnjenja odluke** - Razumijte zašto je tekst označen kao vjerodostojan ili obmanjujući  
+ **Jednostavno dijeljenje** - Dijelite vlastite modele pomoću 6-znamenkastog koda
 
 ### 2.3 Dostupni modeli
 
@@ -110,13 +110,15 @@ npm install
 
 Aplikacija ima tri glavna taba:
 
-📊 **Analysis** - Analizirajte tekst s pretreniranim modelima  
-🎯 **Fine-tuning** - Trenirajte vlastite modele  
-🔑 **Model Access** - Pristupite vlastitim modelima pomoću koda
+ **Analysis** - Analizirajte tekst s pretreniranim modelima  
+ **Fine-tuning** - Trenirajte vlastite modele  
+ **Model Access** - Pristupite vlastitim modelima pomoću koda
 
 ### 4.2 Prvi koraci
 
-1. Otvorite aplikaciju u pregledniku (`http://localhost:8080 ako je lokalno podignuto`)
+1. Otvorite aplikaciju u pregledniku:
+   - **Produkcija (live):** postavite u `backend/.env` kao `PRODUCTION_URL`
+   - **Lokalno:** `http://localhost:8080`
 2. Kliknite na **Analysis** tab (već je odabran po defaultu)
 3. Unesite tekst koji želite analizirati
 4. Odaberite model
@@ -134,8 +136,9 @@ Kako koristiti:
 - Vaš odabir se sprema u preglednik i ostaje aktivan nakon osvježavanja stranice.
 - Ako nemate spremljenu preferenciju, aplikacija koristi postavke operativnog sustava (prefers-color-scheme).
 
-Savjet za provjeru (lokalno):
-- Otvorite aplikaciju na http://localhost:8080
+Savjet za provjeru:
+- Produkcija: koristite URL postavljen u `PRODUCTION_URL` varijabli okoline
+- Lokalno: http://localhost:8080
 - Kliknite ikonu tamnog načina i promijenite temu
 - Ponovo učitajte stranicu – izbor bi trebao ostati aktivan
 
@@ -197,7 +200,7 @@ Rezultati uključuju:
 ```
 Tekst: "Covid has impacted my life by taking away easy access to food. I did gain a few new experiences from it by having to wear a mask outside and standing further away from people than usual. It is a challenge to get the food I want and need sometimes due to shortages and delays."
 
-Rezultat: ✅ Truthful (86.1%)
+Rezultat:  Truthful (86.1%)
 ```
 
 **Primjer 2: Obmanjujući tekst**
@@ -205,14 +208,14 @@ Rezultat: ✅ Truthful (86.1%)
 Tekst: "Climate change is a hoax invented by scientists to 
 get research funding."
 
-Rezultat: ⚠️ Deceptive (85.0%)
+Rezultat:  Deceptive (85.0%)
 ```
 
 ![Screenshot 3: Rezultati analize - Truthful tekst](./screenshots/03-rezultat-truthful.png)
-*Rezultat za vjerodostojan tekst: zeleni ◉ Truthful 86.1%. Prikazan originalni tekst i LIME/SHAP objašnjenja.*
+*Rezultat za vjerodostojan tekst: zeleni  Truthful 86.1%. Prikazan originalni tekst i LIME/SHAP objašnjenja.*
 
 ![Screenshot 4: Rezultati analize - Deceptive tekst](./screenshots/04-rezultat-deceptive.png)
-*Rezultat za obmanjujući tekst: crveni ◉ Deceptive 85.0%*
+*Rezultat za obmanjujući tekst: crveni  Deceptive 85.0%*
 
 ---
 
@@ -220,9 +223,9 @@ Rezultat: ⚠️ Deceptive (85.0%)
 
 ### 6.1 Zašto trenirati vlastiti model?
 
-- 🎯 **Specijalizacija** - Prilagodite model svojoj specifičnoj domeni
-- 📊 **Bolji rezultati** - Veća točnost na vašim podatcima
-- 🔒 **Privatnost** - Vaši podatci ostaju kod vas
+-  **Specijalizacija** - Prilagodite model svojoj specifičnoj domeni
+-  **Bolji rezultati** - Veća točnost na vašim podatcima
+-  **Privatnost** - Vaši podatci ostaju kod vas
 
 ### 6.2 Priprema podataka
 
@@ -236,12 +239,12 @@ text,label
 ```
 
 **Pravila:**
-- ✅ CSV format s dvije kolone: `text` i `label`
-- ✅ Minimalno 100 primjera (preporučeno 500+)
-- ✅ Balansirana distribucija poželjna i preporučena (~50% truthful, ~50% deceptive)
-- ✅ Maksimalna veličina datoteke: 100 MB
-- ❌ Prazni redovi nisu dozvoljeni
-- ❌ Tekst ne smije biti duži od 1300 znakova
+-  CSV format s dvije kolone: `text` i `label`
+-  Minimalno 100 primjera (preporučeno 500+)
+-  Balansirana distribucija poželjna i preporučena (~50% truthful, ~50% deceptive)
+-  Maksimalna veličina datoteke: 100 MB
+-  Prazni redovi nisu dozvoljeni
+-  Tekst ne smije biti duži od 1300 znakova
 
 ![Screenshot 5: CSV upload zona](./screenshots/05-csv-upload.png)
 *Drag & drop zona sa "Browse files" gumbom.
@@ -298,7 +301,7 @@ Aplikacija će automatski provjeriti datoteku i prikazati informacije o podacima
 
 **2. Spremite svoj 6-znamenkasti kod!**
 
-**⚠️ VAŽNO:** Ovaj kod je jedini način za pristup vašem modelu!
+** VAŽNO:** Ovaj kod je jedini način za pristup vašem modelu!
 
 **3. Pratite progres**
 
@@ -369,9 +372,9 @@ Nakon uspješnog pristupa (ispravnog unosa koda), vidjet ćete stranicu koja pri
 ### 7.4 Preuzimanje modela
 
 **Zašto preuzeti model?**
-- 💾 Sigurnosna kopija (model se briše nakon 7 dana)
-- 📤 Dijeljenje s kolegama
-- 🔄 Korištenje u drugim aplikacijama
+-  Sigurnosna kopija (model se briše nakon 7 dana)
+-  Dijeljenje s kolegama
+-  Korištenje u drugim aplikacijama
 
 **Kako preuzeti:**
 
@@ -388,7 +391,7 @@ Datoteka će se preuzeti kao: `deception_model_abc123.zip`
 
 ### 7.5 Rok trajanja modela
 
-⚠️ **Vlastiti modeli se automatski brišu nakon 7 dana!**
+ **Vlastiti modeli se automatski brišu nakon 7 dana!**
 
 **Preostalo vrijeme vidite u model info:**
 
@@ -517,9 +520,9 @@ Gore desno možete odabrati koliko riječi želite vidjeti u listi:
 ### 9.4 "Model not found" greška
 
 **Uzroci:**
-- ❌ Pogrešan kod (provjerite tipfeler)
-- ❌ Model je istekao (više od 7 dana)
-- ❌ Model je obrisan zbog čišćenja
+-  Pogrešan kod (provjerite tipfeler)
+-  Model je istekao (više od 7 dana)
+-  Model je obrisan zbog čišćenja
 
 **Što učiniti:**
 - Ponovno trenirajte model s istim podatcima

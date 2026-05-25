@@ -1,6 +1,6 @@
 # API Credentials Setup
 
-## ⚠️ REQUIRED for Public API
+##  REQUIRED for Public API
 
 The public API requires environment variables to be set. Credentials are NOT stored in code for security.
 
@@ -48,7 +48,7 @@ Run the commands from Step 2 in your terminal.
 
 The backend will show a warning if credentials are not configured:
 ```
-⚠️  API_USERNAME and API_PASSWORD_HASH environment variables not set!
+  API_USERNAME and API_PASSWORD_HASH environment variables not set!
    Public API will not work. Run: python generate_secrets.py
 ```
 

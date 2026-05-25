@@ -17,7 +17,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-IP_ADDRESS="161.53.18.44"
+IP_ADDRESS="${SERVER_IP:?Set SERVER_IP env var or edit this line}"
 SSL_DIR="./ssl"
 
 print_info "Backing up existing certificates..."

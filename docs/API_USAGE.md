@@ -2,11 +2,12 @@
 
 Complete guide for using the Deception Detector API with authentication, rate limiting, and explainable AI features.
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Base URLs
 - **Local Development:** `http://localhost:5000/api`
 - **Docker/Production:** `http://localhost/api` (through nginx)
+- **Production (live):** `${PRODUCTION_URL}/api`  *(set `PRODUCTION_URL` in `backend/.env`)*
 - **Custom Domain:** `https://yourdomain.com/api`
 
 ### Authentication Flow
@@ -17,7 +18,7 @@ Complete guide for using the Deception Detector API with authentication, rate li
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 - [Authentication](#authentication)
 - [Endpoints](#endpoints)
   - [Get JWT Token](#get-jwt-token)
@@ -32,11 +33,11 @@ Complete guide for using the Deception Detector API with authentication, rate li
 
 ---
 
-## 🔐 Authentication
+##  Authentication
 
 The API uses JWT (JSON Web Token) authentication for secure access.
 
-**⚠️ Security Best Practice:** Always hash passwords with SHA256 on the client side before sending. Never send plain-text passwords over the network.
+** Security Best Practice:** Always hash passwords with SHA256 on the client side before sending. Never send plain-text passwords over the network.
 
 ### Password Hashing
 
@@ -64,7 +65,7 @@ PASSWORD_HASH=$(echo -n "your_password" | sha256sum | cut -d' ' -f1)
 
 ---
 
-## 🔌 Endpoints
+##  Endpoints
 
 ### Get JWT Token
 
@@ -269,7 +270,7 @@ Check API health status.
 
 ---
 
-## 💻 Code Examples
+##  Code Examples
 
 ### Python
 
@@ -277,9 +278,10 @@ Check API health status.
 ```python
 import requests
 import hashlib
+import os
 
 # Configuration
-BASE_URL = "http://localhost/api"  # Use /api for nginx proxy
+BASE_URL = os.environ.get("API_BASE_URL", "http://localhost/api")  # Set API_BASE_URL in env for production
 USERNAME = "externalapiuser"
 PASSWORD = "your_password_here"
 
@@ -554,7 +556,7 @@ Write-Host $('='*50)
 
 ---
 
-## ⚙️ Rate Limits
+##  Rate Limits
 
 Rate limits are enforced per IP address:
 
@@ -582,7 +584,7 @@ X-RateLimit-Reset: 1673524800
 
 ---
 
-## ❌ Error Handling
+##  Error Handling
 
 ### HTTP Status Codes
 
@@ -634,7 +636,7 @@ X-RateLimit-Reset: 1673524800
 
 ---
 
-## 🔧 Production Setup
+##  Production Setup
 
 ### Backend Configuration
 
@@ -701,7 +703,7 @@ Ensure NVIDIA Container Toolkit is installed for GPU acceleration.
 
 ---
 
-## 📊 Response Times
+##  Response Times
 
 Typical response times on GPU (RTX 4060):
 - Token generation: < 100ms
@@ -715,7 +717,7 @@ On CPU:
 
 ---
 
-## 🆘 Support
+##  Support
 
 For issues, questions, or feature requests:
 - Check [API_SETUP.md](API_SETUP.md) for setup instructions
@@ -755,7 +757,7 @@ print(f"Top SHAP words: {result['shap_words'][:3]}")
 
 ### Required Configuration
 
-**⚠️ IMPORTANT:** Credentials are NOT stored in code. You MUST set environment variables.
+** IMPORTANT:** Credentials are NOT stored in code. You MUST set environment variables.
 
 **Generate secrets:**
 ```bash
