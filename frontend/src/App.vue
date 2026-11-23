@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="#">
-          <img :src="isDarkMode ? '/logo-dark.svg' : '/logo-light.svg'" alt="Deception Detector" class="logo-img me-2">
+          <img :src="isDarkMode ? '/images/ddetection/logo-dark.svg' : '/images/ddetection/logo-light.svg'" alt="Deception Detector" class="logo-img me-2">
         </a>
         
         <!-- Tab Navigation -->
@@ -97,6 +97,10 @@
         />
       </div>
     </div>
+    <!-- NextGenerationEU visibility mark -->
+    <footer class="site-footer">
+      <img :src="isDarkMode ? '/images/ngeu/ngeu-dark.png' : '/images/ngeu/ngeu-light.png'" alt="Financira Europska unija - NextGenerationEU" class="ngeu-logo">
+    </footer>
   </div>
 </template>
 
@@ -273,7 +277,7 @@ export default {
       const favicon = document.querySelector("link[rel*='icon']") || document.createElement('link')
       favicon.type = 'image/png'
       favicon.rel = 'icon'
-      favicon.href = this.isDarkMode ? '/favicon-light.png' : '/favicon-dark.png'
+      favicon.href = this.isDarkMode ? '/images/ddetection/favicon-light.png' : '/images/ddetection/favicon-dark.png'
       document.getElementsByTagName('head')[0].appendChild(favicon)
     }
   }
@@ -281,12 +285,29 @@ export default {
 </script>
 
 <style>
+.site-footer {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.ngeu-logo {
+  height: 60px;
+  width: auto;
+}
+
+.dark-mode .site-footer {
+  background: transparent;
+}
+
 #app {
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8f9fa;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 * {
@@ -451,7 +472,7 @@ a:hover {
 
 /* Tab Content */
 .tab-content {
-  min-height: calc(100vh - 100px);
+  flex: 1 0 auto;
   padding: 2rem 0;
 }
 

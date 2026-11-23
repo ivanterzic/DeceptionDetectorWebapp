@@ -286,11 +286,11 @@ webapp/
 │   │   └── config.js          # API configuration
 │   ├── public/
 │   │   ├── index.html         # HTML template
-│   │   ├── logo.svg           # Application logo
-│   │   └── favicon.png        # Browser icon
+│   │   └── images/
+│   │       ├── ddetection/    # App logos (light/dark) and favicons
+│   │       └── ngeu/          # NextGenerationEU visibility logos (footer)
 │   └── package.json           # Node.js dependencies
 │
-├── DDetection-logo/           # Brand assets
 ├── setup.bat                  # Windows one-click setup
 ├── start-backend.bat          # Backend launcher
 ├── start-frontend.bat         # Frontend launcher

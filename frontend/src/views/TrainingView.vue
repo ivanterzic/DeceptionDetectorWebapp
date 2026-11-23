@@ -806,7 +806,6 @@ export default {
 /* Component Background */
 .training-view {
   background-color: #f8f9fa;
-  min-height: calc(100vh - 100px);
 }
 
 .dark-mode .training-view {
