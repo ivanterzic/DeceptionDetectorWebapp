@@ -345,6 +345,9 @@ def register_training_routes(app):
             
             return jsonify(response)
             
+        except ValueError as e:
+            print(f"❌ Custom prediction error for {model_code}: {str(e)}")
+            return jsonify({'error': str(e)}), 422
         except Exception as e:
             print(f"❌ Custom prediction error for {model_code}: {str(e)}")
             return jsonify({'error': 'Prediction failed'}), 500

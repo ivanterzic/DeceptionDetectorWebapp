@@ -289,7 +289,11 @@ class ModelTrainer:
                 model_source,
                 num_labels=2,
                 id2label={0: "deceptive", 1: "truthful"},
-                label2id={"deceptive": 0, "truthful": 1}
+                label2id={"deceptive": 0, "truthful": 1},
+                # Transformers 5 keeps the checkpoint dtype; some checkpoints
+                # (e.g. deberta-v3-base) are fp16, and pure-fp16 training
+                # without loss scaling produces NaN weights. Train in fp32.
+                dtype=torch.float32
             )
             
             # Tokenize training data

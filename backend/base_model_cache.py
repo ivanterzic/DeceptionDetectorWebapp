@@ -166,7 +166,8 @@ def download_base_model(model_name: str, force_redownload: bool = False) -> Tupl
             model_name,
             num_labels=2,  # For binary classification
             id2label={0: "deceptive", 1: "truthful"},
-            label2id={"deceptive": 0, "truthful": 1}
+            label2id={"deceptive": 0, "truthful": 1},
+            dtype="float32"  # cache in fp32 so fine-tuning is numerically stable
         )
         model.save_pretrained(model_path)
         

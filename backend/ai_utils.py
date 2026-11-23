@@ -126,6 +126,9 @@ def hf_pretrained_classify(model_key: str, texts: str | List[str], label_mapping
     
     if isinstance(results, dict):
         results = [results]
+
+    if any(np.isnan(res['score']) for res in results):
+        raise ValueError("Model produced invalid output (NaN). This model's training failed numerically; please train it again.")
     
     if label_mapping:
         results = [
@@ -234,4 +237,7 @@ def get_pred_probs(model_key: str, texts: str | List[str], label_mapping=None) -
             prob_array.append(prob_dict.get(cls, 0.0))
         
         probs.append(prob_array)
-    return np.array(probs)
+    probs = np.array(probs)
+    if np.isnan(probs).any():
+        raise ValueError("Model produced invalid output (NaN). This model's training failed numerically; please train it again.")
+    return probs
